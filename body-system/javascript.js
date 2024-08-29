@@ -92,6 +92,10 @@ const gameVariables = {
     protein: 5,
     amino: 2,
     co2: 0,
+    toxygen: 0,
+    twater: 0,
+    tglucose: 0,
+    tamino: 0,
     health: 10,
     actions: 3
 }
