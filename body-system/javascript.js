@@ -65,7 +65,17 @@ const gameVariables = {
 }
 
 const respSystem = {
-
+    getOxygen(){
+        checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameVariables.oxygen += 1;
+            gameVariables.actions -= 1;
+            console.log(gameVariables)
+        }
+        
+    }
 }
 
 const circSystem = {
@@ -130,14 +140,18 @@ function checkActions(){
     }
 }
 
-function getOxygen(){
-    checkActions();
-    if(gameVariables.actions === 0){
-        console.log("out of actions")
-    } else{
-        gameVariables.oxygen += 1;
-        gameVariables.actions -= 1;
-        console.log(gameVariables)
-    }
+
+let counter = 0
+let number = 0
+let rate = 1
+
+function testTurn(){
+    ++counter;
+    if(counter % 5 === 0){
+        rate += 1
+    } 
     
-}
+    number += rate;
+    console.log(counter);
+    console.log(number)
+  }
