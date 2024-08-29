@@ -78,10 +78,28 @@ const gameController = {
             gameController.noActions = true;
         }
     },
+
+    getEvent() {
+
+        let randomNumber = Math.floor(Math.random() * 20) + 1
+        console.log(randomNumber);
+        for (const { range, situation } of gameEvents.events) {
+          if (randomNumber >= range[0] && randomNumber <= range[1]) {
+            return situation();
+          }
+        }
+      
+        return "Default phrase";
+      },
 }
 
 const gameEvents = {
-
+events: [
+    { range: [1,10], situation: () => "event 1"},
+    { range: [11,15], situation: ()=> "event 2"},
+    { range: [16,17], situation: ()=> "event 3"},
+    { range: [18,20], situation: ()=> "event 4"},
+]
 }
 
 const gameVariables = {
@@ -92,10 +110,10 @@ const gameVariables = {
     protein: 5,
     amino: 2,
     co2: 0,
-    toxygen: 0,
-    twater: 0,
-    tglucose: 0,
-    tamino: 0,
+    poxygen: 5,
+    pwater: 5,
+    pglucose: 5,
+    pamino: 5,
     health: 10,
     actions: 3
 }
@@ -106,7 +124,7 @@ const respSystem = {
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else{
-            gameVariables.oxygen += 1;
+            gameVariables.poxygen += 1;
             gameVariables.actions -= 1;
             console.log(gameVariables)
         }
@@ -115,7 +133,24 @@ const respSystem = {
 }
 
 const circSystem = {
+    makeAvailable(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameVariables.oxygen += gameVariables.poxygen;
+            gameVariables.poxygen = 0;
+            gameVariables.amino += gameVariables.pamino;
+            gameVariables.pamino = 0;
+            gameVariables.glucose += gameVariables.pglucose;
+            gameVariables.pglucose = 0;
+            gameVariables.water += gameVariables.pwater;
+            gameVariables.pwater = 0;
+            gameVariables.actions -= 1;
+            gameVariables.co2 += 3;
 
+        }
+    }
 }
 
 const endoSystem = {
@@ -143,4 +178,3 @@ const nervSystem = {
 const immuSystem = {
 
 }
-
