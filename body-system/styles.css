@@ -29,3 +29,26 @@
     display:grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
+
+.info-container{
+    grid-column: 1/5;
+    border: 1px solid black;
+}
+
+.body-system-btns{
+    grid-column: 1/2;
+    grid-row: 2/5;
+    border: 1px solid black;
+}
+
+.messages-container{
+    grid-column: 2/4;
+    grid-row: 2/5;
+    border: 1px solid black;
+}
+
+.body-system-functions{
+    grid-column: 4/5;
+    grid-row: 2/5;
+    border: 1px solid black;
+}
