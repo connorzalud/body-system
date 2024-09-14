@@ -37,8 +37,11 @@ const gameController = {
         this.checkActions();
         if(this.noActions === true){
             this.noActions = false;
-            if(this.turnCount % 5 === 0){
+            if(this.turnCount % 10 === 0){
                 this.healthRate++
+            };
+            if(this.turnCount % 5 === 0 && gameStatus.eventActive === false){
+                this.getEvent();
             }
             this.turnCount++
             gameVariables.actions = 3;
