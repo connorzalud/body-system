@@ -19,11 +19,20 @@ function testTurn(){
     console.log(number)
   }
 
+  const gameStatus = {
+    eventActive: false,
+    regulateOn: false,
+    overheatOn: false,
+    lowEnergy: false,
+    increaseBreath: false,
+    increaseHeart: false,
+  }
+
 const gameController = {
     noActions: false,
     turnCount: 1,
     healthRate: 1,
-    regulateOn: false,
+    
     endTurn(){
         this.checkActions();
         if(this.noActions === true){
@@ -33,14 +42,27 @@ const gameController = {
             }
             this.turnCount++
             gameVariables.actions = 3;
+            if(gameStatus.lowEnergy === true){
+                if(gameStatus.increaseBreath === true && gameStatus.increaseHeart === true){
+                    gameStatus.lowEnergy = false;
+                    gameStatus.increaseBreath = false;
+                    gameStatus.increaseHeart = false;
+                    gameStatus.eventActive = false;
+                    console.log("The body receieved all the oxygen it needed and transported it to the cells. Homeostasis has been restored!")
+
+                } else{
+                    gameVariables.water = Math.max(0,gameVariables.water -= 1);
+                    gameVariables.glucose = Math.max(0,gameVariables.glucose -= 1);
+                }
+            }
             gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= 2);
             gameVariables.water = Math.max(0,gameVariables.water -= 2);
             gameVariables.glucose = Math.max(0,gameVariables.glucose -= 2);
             gameVariables.amino = Math.max(0,gameVariables.amino -= 2)
-            if(!this.regulateOn){
+            if(!gameStatus.regulateOn){
                     gameVariables.health = Math.max(0,gameVariables.health -= this.healthRate);
             } else{
-                this.regulateOn = false;
+                gameStatus.regulateOn = false;
             }
            /* let conditionsMet = 0
             const condition1 = gameVariables.oxygen === 0;
@@ -66,6 +88,9 @@ const gameController = {
             gameVariables.health = Math.max(0,gameVariables.oxygen -= conditionsMet);*/
             console.log(gameVariables);
             console.log(gameController);
+            if(gameVariables.health === 0){
+                console.log(`Game over! Health: ${gameVariables.health}`);
+            }
     
         } else {
             console.log(`actions remaining: ${gameVariables.actions}`)
@@ -81,7 +106,7 @@ const gameController = {
 
     getEvent() {
 
-        let randomNumber = Math.floor(Math.random() * 20) + 1
+        let randomNumber = Math.floor(Math.random() * 10) + 1
         console.log(randomNumber);
         for (const { range, situation } of gameEvents.events) {
           if (randomNumber >= range[0] && randomNumber <= range[1]) {
@@ -95,8 +120,25 @@ const gameController = {
 
 const gameEvents = {
 events: [
-    { range: [1,10], situation: () => "event 1"},
-    { range: [11,15], situation: ()=> "event 2"},
+    { 
+        range: [1,10], 
+        situation: () => {
+            "event 1";
+            gameStatus.lowEnergy = true;
+            gameStatus.eventActive = true;
+            console.log("While going for a run, the body needs more energy to function!")
+
+            }
+        
+        },
+    { 
+        range: [11,15], 
+        situation: ()=>{
+            "event 2"
+            gameStatus.overheatOn = true;
+            console.log("After some intense exercise, the body has overheated!")
+        }
+    },
     { range: [16,17], situation: ()=> "event 3"},
     { range: [18,20], situation: ()=> "event 4"},
 ]
@@ -129,6 +171,20 @@ const respSystem = {
             console.log(gameVariables)
         }
         
+    },
+
+    increaseBreath(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions");
+        } else if(gameStatus.increaseBreath === true){
+            console.log("Breathing is already increased!")
+        } else{
+            gameStatus.increaseBreath = true
+            gameVariables.actions -= 1;
+            console.log("The respiratory system has increased breathing, bringing more oxygen into the body!") 
+        }
+        
     }
 }
 
@@ -150,6 +206,19 @@ const circSystem = {
             gameVariables.co2 += 3;
 
         }
+    },
+
+    increaseHeart(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions");
+        } else if(gameStatus.increaseHeart === true){
+            console.log("Breathing is already increased!")
+        } else{
+            gameStatus.increaseHeart = true
+            gameVariables.actions -= 1;
+            console.log("The heart pumps faster, bringing more blood to the cells of the body!") 
+        }
     }
 }
 
@@ -163,7 +232,7 @@ const nervSystem = {
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else{
-            gameController.regulateOn = true;
+            gameStatus.regulateOn = true;
             gameVariables.oxygen -= 2;
             gameVariables.glucose -= 2;
             gameVariables.water -= 2;
