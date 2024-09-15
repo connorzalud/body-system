@@ -82,10 +82,49 @@
 }
 
 #nervous-system-btns{
-    display:grid;
+    display:none;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
     grid-column: 1/3
 
 }
 
+#respiratory-system-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+
+}
+
+#circulatory-system-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+
+}
+
+#digestive-system-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+
+}
+
+#endocrine-system-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+
+}
+
+#immune-system-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+
+}
