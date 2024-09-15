@@ -225,6 +225,38 @@ const circSystem = {
     }
 }
 
+const digestSystem = {
+    getNutrients(){
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameVariables.actions -=1;
+            gameVariables.pwater +=3;
+            gameVariables.carbs += 3;
+            gameVariables.protein += 3;
+            gameVariables.co2 += 2;
+            gameVariables.amino -=1;
+            gameVariables.glucose -=1;
+
+        }
+    },
+
+    digestNutrients(){
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameVariables.actions -=1;
+            gameVariables.pamino = gameVariables.protein*2 + gameVariables.pamino;
+            gameVariables.pglucose = gameVariables.carbs*2 + gameVariables.pglucose;
+            gameVariables.carbs = 0;
+            gameVariables.protein = 0;
+            gameVariables.co2 += 3;
+
+        }
+    }
+}
+
 const endoSystem = {
 
 }
