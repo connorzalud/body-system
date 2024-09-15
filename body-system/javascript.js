@@ -1,7 +1,71 @@
 const DOM = {
-
+    nerveBtn: document.querySelector("#nervous-button"),
+    respBtn: document.querySelector("#resp-button"),
+    circBtn: document.querySelector("#circ-button"),
+    digestBtn: document.querySelector("#digest-button"),
+    endoBtn: document.querySelector("#endo-button"),
+    immuneBtn: document.querySelector("#immune-button"),
+    nerveBtnContain: document.querySelector("#nervous-system-btns"),
+    respBtnContain: document.querySelector("#respiratory-system-btns"),
+    circBtnContain: document.querySelector("#circulatory-system-btns"),
+    digestBtnContain: document.querySelector("#digestive-system-btns"),
+    endoBtnContain: document.querySelector("#endocrine-system-btns"),
+    immuneBtnContain: document.querySelector("#immune-system-btns"),
 }
 
+DOM.nerveBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "grid";
+    DOM.respBtnContain.style.display = "none";
+    DOM.circBtnContain.style.display = "none";
+    DOM.digestBtnContain.style.display = "none";
+    DOM.endoBtnContain.style.display = "none";
+    DOM.immuneBtnContain.style.display = "none";
+})
+
+DOM.respBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "none";
+    DOM.respBtnContain.style.display = "grid";
+    DOM.circBtnContain.style.display = "none";
+    DOM.digestBtnContain.style.display = "none";
+    DOM.endoBtnContain.style.display = "none";
+    DOM.immuneBtnContain.style.display = "none";
+})
+
+DOM.circBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "none";
+    DOM.respBtnContain.style.display = "none";
+    DOM.circBtnContain.style.display = "grid";
+    DOM.digestBtnContain.style.display = "none";
+    DOM.endoBtnContain.style.display = "none";
+    DOM.immuneBtnContain.style.display = "none";
+})
+
+DOM.digestBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "none";
+    DOM.respBtnContain.style.display = "none";
+    DOM.circBtnContain.style.display = "none";
+    DOM.digestBtnContain.style.display = "grid";
+    DOM.endoBtnContain.style.display = "none";
+    DOM.immuneBtnContain.style.display = "none";
+})
+
+DOM.endoBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "none";
+    DOM.respBtnContain.style.display = "none";
+    DOM.circBtnContain.style.display = "none";
+    DOM.digestBtnContain.style.display = "none";
+    DOM.endoBtnContain.style.display = "grid";
+    DOM.immuneBtnContain.style.display = "none";
+})
+
+DOM.immuneBtn.addEventListener("click", function(){
+    DOM.nerveBtnContain.style.display = "none";
+    DOM.respBtnContain.style.display = "none";
+    DOM.circBtnContain.style.display = "none";
+    DOM.digestBtnContain.style.display = "none";
+    DOM.endoBtnContain.style.display = "none";
+    DOM.immuneBtnContain.style.display = "grid";
+})
 
 const display = {
 
@@ -285,7 +349,7 @@ const nervSystem = {
     },
 
     goSleep(){
-        
+
     }
 }
 
