@@ -109,7 +109,7 @@ const gameController = {
 
     getEvent() {
 
-        let randomNumber = Math.floor(Math.random() * 10) + 1
+        let randomNumber = Math.floor(Math.random() * 20) + 1
         console.log(randomNumber);
         for (const { range, situation } of gameEvents.events) {
           if (randomNumber >= range[0] && randomNumber <= range[1]) {
@@ -150,9 +150,9 @@ events: [
 const gameVariables = {
     oxygen: 5,
     water: 5,
-    carbs: 5,
+    carbs: 1,
     glucose: 2,
-    protein: 5,
+    protein: 1,
     amino: 2,
     co2: 0,
     poxygen: 5,
@@ -233,8 +233,8 @@ const digestSystem = {
         } else{
             gameVariables.actions -=1;
             gameVariables.pwater +=3;
-            gameVariables.carbs += 3;
-            gameVariables.protein += 3;
+            gameVariables.carbs += 2;
+            gameVariables.protein += 2;
             gameVariables.co2 += 2;
             gameVariables.amino -=1;
             gameVariables.glucose -=1;
@@ -252,6 +252,8 @@ const digestSystem = {
             gameVariables.carbs = 0;
             gameVariables.protein = 0;
             gameVariables.co2 += 3;
+            gameVariables.amino -=1;
+            gameVariables.glucose -=1;
 
         }
     }
@@ -276,6 +278,14 @@ const nervSystem = {
             gameVariables.actions--;
 
         }
+    },
+
+    produceSweat(){
+
+    },
+
+    goSleep(){
+        
     }
 }
 
