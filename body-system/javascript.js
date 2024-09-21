@@ -356,3 +356,21 @@ const nervSystem = {
 const immuSystem = {
 
 }
+
+
+
+let itemCount = 1;
+
+function addItem() {
+    const statusContainer = document.querySelector('.status-container');
+    
+    // Create a new div element
+    const newItem = document.createElement('div');
+    newItem.classList.add('status-item');
+    newItem.textContent = `Item ${itemCount}`; // Set the item content
+    
+    // Append the new item to the status container
+    statusContainer.appendChild(newItem);
+    
+    itemCount++; // Increment the item counter
+}
