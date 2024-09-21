@@ -74,8 +74,61 @@
 }
 
 .status-container{
-    grid-template-columns: 2/3;
-    border: 1px solid black
+    grid-column: 2/3;
+    border: 1px solid black;
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+
+}
+
+.status-header{
+    grid-column: 1/7;
+    justify-self: center;
+}
+
+.status-item{
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items: center;
+}
+
+.status-item img {
+    
+    width: 50px;
+    height:auto;
+    padding: 3px;
+}
+
+.tooltip {
+    visibility: hidden;
+    width: 100px; /* Adjust width as needed */
+    background-color: lightblue;
+    color: black;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    bottom: 100%; /* Position above the image */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.status-item img:hover + .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+#picture-1{
+    display:none
+}
+
+#picture-2{
+    display:none
 }
 
 .body-system-btns-container{
