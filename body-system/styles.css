@@ -225,3 +225,48 @@
 
 }
 
+.messages-container{
+    display:grid;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.game-info{
+    grid-row: 1/2;
+    grid-column: 1/5;
+    display:grid;
+    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    border: 1px solid black
+
+}
+
+.game-info p {
+    grid-row: 1/2;
+    grid-column: 2/3;
+}
+
+.health-display{
+    grid-row: 2/3;
+    grid-column: 1/2;
+}
+
+.action-display{
+    grid-row: 2/3;
+    grid-column:2/3;
+}
+
+.turn-display{
+    grid-row:2/3;
+    grid-column: 3/4;
+}
+
+.message-text{
+    grid-row: 2/3;
+    grid-column: 1/5;
+}
+
+.status-text{
+    grid-row: 3/4;
+    grid-column: 1/5;
+}
