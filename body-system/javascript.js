@@ -10,7 +10,12 @@ const DOM = {
     circBtnContain: document.querySelector("#circulatory-system-btns"),
     digestBtnContain: document.querySelector("#digestive-system-btns"),
     endoBtnContain: document.querySelector("#endocrine-system-btns"),
-    immuneBtnContain: document.querySelector("#immune-system-btns"),
+    turnDisplay: document.querySelector("#turn-count"),
+    unOxDisplay: document.querySelector("#oxygen-un"),
+    unGluDisplay: document.querySelector("#glucose-un"),
+    unAminoDisplay: document.querySelector("#amino-un"),
+    unWaterDisplay: document.querySelector("#water-un"),
+    
 }
 
 DOM.nerveBtn.addEventListener("click", function(){
@@ -69,7 +74,18 @@ DOM.immuneBtn.addEventListener("click", function(){
 
 const display = {
 
+    updateDisplay(){
+        DOM.turnDisplay.innerHTML = `<b>Turn Count</b>: ${gameVariables.actions}`;
+        DOM.unOxDisplay.innerHTML = `<b>Oxygen</b>: ${gameVariables.poxygen}`;
+        DOM.unAminoDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.pamino}`;
+        DOM.unGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.pglucose}`;
+        DOM.unWaterDisplay.innerHTML = `<b>Water</b>: ${gameVariables.pwater}`;
+
+    }
+
 }
+
+
 
 
 function testTurn(){
@@ -357,20 +373,12 @@ const immuSystem = {
 
 }
 
+display.updateDisplay()
 
+let testCon = true;
 
-let itemCount = 1;
-
-function addItem() {
-    const statusContainer = document.querySelector('.status-container');
-    
-    // Create a new div element
-    const newItem = document.createElement('div');
-    newItem.classList.add('status-item');
-    newItem.textContent = `Item ${itemCount}`; // Set the item content
-    
-    // Append the new item to the status container
-    statusContainer.appendChild(newItem);
-    
-    itemCount++; // Increment the item counter
+function test(){
+    if(testCon === true){
+        console.log("test")
+    }
 }
