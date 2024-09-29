@@ -10,6 +10,7 @@ const DOM = {
     circBtnContain: document.querySelector("#circulatory-system-btns"),
     digestBtnContain: document.querySelector("#digestive-system-btns"),
     endoBtnContain: document.querySelector("#endocrine-system-btns"),
+    immuneBtnContain:document.querySelector("#immune-system-btns"),
     actionDisplay: document.querySelector(".action-display"),
     unOxDisplay: document.querySelector("#oxygen-un"),
     unGluDisplay: document.querySelector("#glucose-un"),
