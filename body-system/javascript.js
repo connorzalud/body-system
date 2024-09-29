@@ -10,11 +10,15 @@ const DOM = {
     circBtnContain: document.querySelector("#circulatory-system-btns"),
     digestBtnContain: document.querySelector("#digestive-system-btns"),
     endoBtnContain: document.querySelector("#endocrine-system-btns"),
-    turnDisplay: document.querySelector("#turn-count"),
+    actionDisplay: document.querySelector(".action-display"),
     unOxDisplay: document.querySelector("#oxygen-un"),
     unGluDisplay: document.querySelector("#glucose-un"),
     unAminoDisplay: document.querySelector("#amino-un"),
     unWaterDisplay: document.querySelector("#water-un"),
+    healthDisplay: document.querySelector(".health-display"),
+    turnDisplay: document.querySelector(".turn-display")
+
+
     
 }
 
@@ -75,11 +79,13 @@ DOM.immuneBtn.addEventListener("click", function(){
 const display = {
 
     updateDisplay(){
-        DOM.turnDisplay.innerHTML = `<b>Turn Count</b>: ${gameVariables.actions}`;
+        DOM.actionDisplay.innerHTML = `<b>Actions Remaining:</b> ${gameVariables.actions}`;
         DOM.unOxDisplay.innerHTML = `<b>Oxygen</b>: ${gameVariables.poxygen}`;
         DOM.unAminoDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.pamino}`;
         DOM.unGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.pglucose}`;
         DOM.unWaterDisplay.innerHTML = `<b>Water</b>: ${gameVariables.pwater}`;
+        DOM.turnDisplay.innerHTML= `<b>Turn:</b> ${gameController.turnCount}`
+        DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`
 
     }
 
@@ -106,6 +112,7 @@ function testTurn(){
     lowEnergy: false,
     increaseBreath: false,
     increaseHeart: false,
+    sweatOn: false,
   }
 
 const gameController = {
@@ -240,6 +247,7 @@ const gameVariables = {
     pglucose: 5,
     pamino: 5,
     health: 10,
+    maxHealth:10,
     actions: 3
 }
 
@@ -268,6 +276,10 @@ const respSystem = {
             console.log("The respiratory system has increased breathing, bringing more oxygen into the body!") 
         }
         
+    },
+
+    releaseCO2(){
+
     }
 }
 
@@ -361,7 +373,14 @@ const nervSystem = {
     },
 
     produceSweat(){
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameStatus.sweatOn = true;
+            gameVariables.actions -= 1;
 
+        }
     },
 
     goSleep(){
@@ -374,11 +393,3 @@ const immuSystem = {
 }
 
 display.updateDisplay()
-
-let testCon = true;
-
-function test(){
-    if(testCon === true){
-        console.log("test")
-    }
-}
