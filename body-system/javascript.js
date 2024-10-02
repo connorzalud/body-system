@@ -122,14 +122,25 @@ function testTurn(){
     adrenCount: 2,
     insuOn: false,
     insCount: 2,
+    fluOn: false,
+    fluAnti: false,
+    fluAntiCount: 3,
+    fluCreated: false,
 
 
     clearStatus(){
         gameController.checkActions();
+        
         if(gameVariables.actions === 0){
             console.log("out of actions")
+            return
         }
-    
+
+         if(this.eventActive === false){
+            console.log("There is no event active.")
+            return
+        }
+
         if(this.lowEnergy === true){
             if(this.increaseBreath === true && this.increaseHeart === true){
                 this.lowEnergy = false;
@@ -139,6 +150,10 @@ function testTurn(){
             } else {
                 console.log("do not meet the requirements")
             }
+        } else if(this.overheatOn === true){
+                console.log("overheat test")
+        } else{
+            console.log("You can't resolve the event here!")
         }
     }
   }
@@ -169,8 +184,8 @@ const gameController = {
 
             }
 
-            if(overHeatOn === true){
-
+            if(gameStatus.overheatOn === true){
+                gameVariables.water = Math.max(0,gameVariables.water -= 2);
             }
 
             if(gameStatus.adrenOn === true){
@@ -191,6 +206,29 @@ const gameController = {
                 } else{
                     gameStatus.insCount -= 1;
                     gameVariables.glucose += 4
+                }
+            }
+
+            if(gameStatus.fluOn === true){
+                if(gameStatus.fluCreated === true){
+                    gameStatus.fluOn = false;
+                    gameStatus.fluAnti = false;
+                    gameStatus.eventActive = false;
+                    console.log("you defeated the flu with memory cells!")
+
+                } else if(gameStatus.fluAnti === true){
+                    if(gameStatus.fluAntiCount === 0){
+                        gameStatus.fluCreated = true;
+                        gameStatus.fluAnti = false;
+                        gameStatus.fluOn = false;
+                        gameStatus.eventActive = false;
+                        console.log("you defeated the flu!")
+                    } else{
+                        gameStatus.fluAntiCount -= 1;
+                        gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                    }
+                } else{
+                    gameVariables.health = Math.max(0,gameVariables.health -= 1)
                 }
             }
             gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= 2);
@@ -274,10 +312,20 @@ events: [
         situation: ()=>{
             "event 2"
             gameStatus.overheatOn = true;
+            gameStatus.eventActive = true;
             console.log("After some intense exercise, the body has overheated!")
         }
     },
-    { range: [16,17], situation: ()=> "event 3"},
+    { range: [16,17], 
+        situation: ()=> {
+            "event 3"
+            gameStatus.fluOn = true;
+            gameStatus.eventActive = true;
+            console.log("A flu virus has invaded the body!")
+        }
+            
+    
+    },
     { range: [18,20], situation: ()=> "event 4"},
 ]
 }
@@ -502,8 +550,13 @@ const nervSystem = {
 }
 
 const immuSystem = {
-    produceAnti(){
-
+    produceFlu(){
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else {
+            gameStatus.fluAnti = true;
+        }
     }
 }
 
