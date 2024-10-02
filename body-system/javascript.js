@@ -17,7 +17,8 @@ const DOM = {
     unAminoDisplay: document.querySelector("#amino-un"),
     unWaterDisplay: document.querySelector("#water-un"),
     healthDisplay: document.querySelector(".health-display"),
-    turnDisplay: document.querySelector(".turn-display")
+    turnDisplay: document.querySelector(".turn-display"),
+    co2Display: document.querySelector(".co2-display"),
 
 
     
@@ -80,13 +81,14 @@ DOM.immuneBtn.addEventListener("click", function(){
 const display = {
 
     updateDisplay(){
-        DOM.actionDisplay.innerHTML = `<b>Actions Remaining:</b> ${gameVariables.actions}`;
+        DOM.actionDisplay.innerHTML = `<b>Actions:</b> ${gameVariables.actions}`;
         DOM.unOxDisplay.innerHTML = `<b>Oxygen</b>: ${gameVariables.poxygen}`;
         DOM.unAminoDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.pamino}`;
         DOM.unGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.pglucose}`;
         DOM.unWaterDisplay.innerHTML = `<b>Water</b>: ${gameVariables.pwater}`;
         DOM.turnDisplay.innerHTML= `<b>Turn:</b> ${gameController.turnCount}`
-        DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`
+        DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
+        DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`
 
     }
 
@@ -114,6 +116,31 @@ function testTurn(){
     increaseBreath: false,
     increaseHeart: false,
     sweatOn: false,
+    co2Over: false,
+    melatoninOn: false,
+    adrenOn: false,
+    adrenCount: 2,
+    insuOn: false,
+    insCount: 2,
+
+
+    clearStatus(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        }
+    
+        if(this.lowEnergy === true){
+            if(this.increaseBreath === true && this.increaseHeart === true){
+                this.lowEnergy = false;
+                this.increaseBreath = false;
+                this.increaseHeart = false;
+                this.eventActive = false;
+            } else {
+                console.log("do not meet the requirements")
+            }
+        }
+    }
   }
 
 const gameController = {
@@ -131,19 +158,39 @@ const gameController = {
             if(this.turnCount % 5 === 0 && gameStatus.eventActive === false){
                 this.getEvent();
             }
-            this.turnCount++
+            this.turnCount++;
             gameVariables.actions = 3;
+            if(gameStatus.co2Over === true){
+                gameVariables.actions -=1
+            }
             if(gameStatus.lowEnergy === true){
-                if(gameStatus.increaseBreath === true && gameStatus.increaseHeart === true){
-                    gameStatus.lowEnergy = false;
-                    gameStatus.increaseBreath = false;
-                    gameStatus.increaseHeart = false;
-                    gameStatus.eventActive = false;
-                    console.log("The body receieved all the oxygen it needed and transported it to the cells. Homeostasis has been restored!")
-
-                } else{
                     gameVariables.water = Math.max(0,gameVariables.water -= 1);
                     gameVariables.glucose = Math.max(0,gameVariables.glucose -= 1);
+
+            }
+
+            if(overHeatOn === true){
+
+            }
+
+            if(gameStatus.adrenOn === true){
+                if(gameStatus.adrenCount === 0){
+                    gameStatus.adrenCount = 2;
+                    gameStatus.adrenOn = false;
+                } else{
+                    gameStatus.adrenCount -= 1;
+                    gameVariables.oxygen += 4
+                }
+
+            }
+
+            if(gameStatus.insuOn === true){
+                if(gameStatus.insCount === 0){
+                    gameStatus.insCount = 2;
+                    gameStatus.insuOn = false
+                } else{
+                    gameStatus.insCount -= 1;
+                    gameVariables.glucose += 4
                 }
             }
             gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= 2);
@@ -159,7 +206,7 @@ const gameController = {
             const condition1 = gameVariables.oxygen === 0;
             const condition2 = gameVariables.water === 0;
             const condition3 = gameVariables.amino === 0;
-            const condition4 = gameVariables.co2 === 10;
+            const condition4 = gameVariables.co2 >= 10;
             const condition5 = gameVariables.glucose === 0;
             if(condition1){
                 conditionsMet++
@@ -280,7 +327,16 @@ const respSystem = {
     },
 
     releaseCO2(){
-
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else{
+            gameVariables.co2 -= 10;
+            gameVariables.glucose -= 2;
+            gameVariables.amino -=2;
+            gameVariables.water -=2;
+            gameVariables.actions -=1
+        }
     }
 }
 
@@ -336,6 +392,7 @@ const digestSystem = {
     },
 
     digestNutrients(){
+        gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else{
@@ -353,7 +410,44 @@ const digestSystem = {
 }
 
 const endoSystem = {
+    produceMel(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else {
+            gameVariables.actions -= 1;
+            gameVariables.amino -= 3;
+            gameVariables.glucose -= 1;
+            gameStatus.melatoninOn = true;
+            console.log("Melatonin produced!")
+        }
+    },
 
+    produceAdr(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else {
+            gameVariables.actions -= 1;
+            gameVariables.amino -= 3;
+            gameVariables.glucose -= 1;
+            gameStatus.adrenOn = true;
+            console.log("Adrenaline produced!")
+        }
+    },
+
+    produceIns(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else {
+            gameVariables.actions -= 1;
+            gameVariables.amino -= 3;
+            gameVariables.glucose -= 1;
+            gameStatus.insuOn = true;
+            console.log("Insulin produced!")
+        }
+    },
 }
 
 const nervSystem = {
@@ -385,12 +479,32 @@ const nervSystem = {
     },
 
     goSleep(){
-
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameStatus.melatoninOn === true){
+            gameStatus.melatoninOn = false;
+            gameVariables.amino-=3;
+            gameVariables.water-=3;
+            gameVariables.glucose-=3;
+            gameVariables.oxygen-=3;
+            gameVariables.health+=2;
+            gameVariables.actions-=1
+        } else{
+            gameVariables.amino-=3;
+            gameVariables.water-=3;
+            gameVariables.glucose-=3;
+            gameVariables.oxygen-=3;
+            gameVariables.health+=1;
+            gameVariables.actions-=1
+        }
     }
 }
 
 const immuSystem = {
+    produceAnti(){
 
+    }
 }
 
 display.updateDisplay()
