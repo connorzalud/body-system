@@ -20,9 +20,15 @@ const DOM = {
     turnDisplay: document.querySelector(".turn-display"),
     co2Display: document.querySelector(".co2-display"),
 
+    regulateImg: document.querySelector("#picture-1"),
+    regulateTool: document.querySelector("#regulate-tooltip")
+
 
     
 }
+
+
+
 
 DOM.nerveBtn.addEventListener("click", function(){
     DOM.nerveBtnContain.style.display = "grid";
@@ -114,7 +120,9 @@ function testTurn(){
     overheatOn: false,
     lowEnergy: false,
     increaseBreath: false,
+    increaseBreathCount: 2,
     increaseHeart: false,
+    increaseHeartCount: 2,
     sweatOn: false,
     co2Over: false,
     melatoninOn: false,
@@ -122,10 +130,18 @@ function testTurn(){
     adrenCount: 2,
     insuOn: false,
     insCount: 2,
-    fluOn: false,
-    fluAnti: false,
-    fluAntiCount: 3,
-    fluCreated: false,
+    bacteriaOn: false,
+    bacteriaAnti: false,
+    bacteriaAntiCount: 3,
+    bacteriaCreated: false,
+    bacteriaOn: false,
+    bacteriaAnti: false,
+    bacteriaAntiCount: 3,
+    bacteriaCreated: false,
+    parasiteOn: false,
+    parasiteAnti: false,
+    parasiteAntiCount: false,
+    parasiteCreated: false,
 
 
     clearStatus(){
@@ -147,11 +163,18 @@ function testTurn(){
                 this.increaseBreath = false;
                 this.increaseHeart = false;
                 this.eventActive = false;
+                gameVariables.actions -= 1;
             } else {
                 console.log("do not meet the requirements")
             }
         } else if(this.overheatOn === true){
-                console.log("overheat test")
+                if(gameStatus.sweatOn === true){
+                    this.overheatOn = false;
+                    this.sweatOn = false;
+                    this.eventActive = false;
+                    gameVariables.actions -=1;
+                    
+                }
         } else{
             console.log("You can't resolve the event here!")
         }
@@ -178,6 +201,23 @@ const gameController = {
             if(gameStatus.co2Over === true){
                 gameVariables.actions -=1
             }
+
+            if(gameStatus.increaseHeart === true){
+                if(gameStatus.increaseHeartCount === 0){
+                    gameStatus.increaseHeart = false;
+                } else{
+                    gameStatus.increaseHeartCount -=1
+                }
+            }
+
+            if(gameStatus.increaseBreath === true){
+                if(gameStatus.increaseBreathCount === 0){
+                    gameStatus.increaseBreath = false;
+                } else{
+                    gameStatus.increaseBreathCount -=1
+                }
+            }
+            
             if(gameStatus.lowEnergy === true){
                     gameVariables.water = Math.max(0,gameVariables.water -= 1);
                     gameVariables.glucose = Math.max(0,gameVariables.glucose -= 1);
@@ -209,22 +249,45 @@ const gameController = {
                 }
             }
 
-            if(gameStatus.fluOn === true){
-                if(gameStatus.fluCreated === true){
-                    gameStatus.fluOn = false;
-                    gameStatus.fluAnti = false;
+            if(gameStatus.bacteriaOn === true){
+                if(gameStatus.bacteriaCreated === true){
+                    gameStatus.bacteriaOn = false;
+                    gameStatus.bacteriaAnti = false;
                     gameStatus.eventActive = false;
-                    console.log("you defeated the flu with memory cells!")
+                    console.log("you defeated the bacteria with memory cells!")
 
-                } else if(gameStatus.fluAnti === true){
-                    if(gameStatus.fluAntiCount === 0){
-                        gameStatus.fluCreated = true;
-                        gameStatus.fluAnti = false;
-                        gameStatus.fluOn = false;
+                } else if(gameStatus.bacteriaAnti === true){
+                    if(gameStatus.bacteriaAntiCount === 0){
+                        gameStatus.bacteriaCreated = true;
+                        gameStatus.bacteriaAnti = false;
+                        gameStatus.bacteriaOn = false;
                         gameStatus.eventActive = false;
-                        console.log("you defeated the flu!")
+                        console.log("you defeated the bacteria!")
                     } else{
-                        gameStatus.fluAntiCount -= 1;
+                        gameStatus.bacteriaAntiCount -= 1;
+                        gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                    }
+                } else{
+                    gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                }
+            }
+
+            if(gameStatus.bacteriaOn === true){
+                if(gameStatus.bacteriaCreated === true){
+                    gameStatus.bacteriaOn = false;
+                    gameStatus.bacteriaAnti = false;
+                    gameStatus.eventActive = false;
+                    console.log("you defeated the bacteria with memory cells!")
+
+                } else if(gameStatus.bacteriaAnti === true){
+                    if(gameStatus.bacteriaAntiCount === 0){
+                        gameStatus.bacteriaCreated = true;
+                        gameStatus.bacteriaAnti = false;
+                        gameStatus.bacteriaOn = false;
+                        gameStatus.eventActive = false;
+                        console.log("you defeated the bacteria!")
+                    } else{
+                        gameStatus.bacteriaAntiCount -= 1;
                         gameVariables.health = Math.max(0,gameVariables.health -= 1)
                     }
                 } else{
@@ -326,7 +389,27 @@ events: [
             
     
     },
-    { range: [18,20], situation: ()=> "event 4"},
+    { range: [18,20], 
+        situation: ()=> {
+            "event 4"
+            gameStatus.bacteriaOn = true;
+            gameStatus.eventActive = true;
+            console.log("A bacteria has invaded the body!")
+        }
+
+
+    },
+
+    { range: [18,20], 
+        situation: ()=> {
+            "event 5"
+            gameStatus.parasiteOn = true;
+            gameStatus.eventActive = true;
+            console.log("A parasite has invaded the body!")
+        }
+
+
+    },
 ]
 }
 
@@ -352,8 +435,11 @@ const respSystem = {
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
+        } else if(gameStatus.increaseBreath === true){
+            gameVariables.poxygen += 8;
+            gameVariables.actions-=1;
         } else{
-            gameVariables.poxygen += 1;
+            gameVariables.poxygen += 4;
             gameVariables.actions -= 1;
             console.log(gameVariables)
         }
@@ -393,6 +479,17 @@ const circSystem = {
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
+        }else if(gameStatus.increaseHeart === true){
+            gameVariables.oxygen += gameVariables.poxygen;
+            gameVariables.poxygen = 0;
+            gameVariables.amino += gameVariables.pamino;
+            gameVariables.pamino = 0;
+            gameVariables.glucose += gameVariables.pglucose;
+            gameVariables.pglucose = 0;
+            gameVariables.water += gameVariables.pwater;
+            gameVariables.pwater = 0;
+            gameVariables.actions -= 1;
+            gameVariables.co2 += 2;
         } else{
             gameVariables.oxygen += gameVariables.poxygen;
             gameVariables.poxygen = 0;
@@ -403,7 +500,7 @@ const circSystem = {
             gameVariables.water += gameVariables.pwater;
             gameVariables.pwater = 0;
             gameVariables.actions -= 1;
-            gameVariables.co2 += 3;
+            gameVariables.co2 += 4;
 
         }
     },
@@ -413,9 +510,10 @@ const circSystem = {
         if(gameVariables.actions === 0){
             console.log("out of actions");
         } else if(gameStatus.increaseHeart === true){
-            console.log("Breathing is already increased!")
+            console.log("Heart rate is already increased!")
         } else{
-            gameStatus.increaseHeart = true
+            gameStatus.increaseHeart = true;
+            gameVariables.glucose -=2;
             gameVariables.actions -= 1;
             console.log("The heart pumps faster, bringing more blood to the cells of the body!") 
         }
@@ -550,14 +648,15 @@ const nervSystem = {
 }
 
 const immuSystem = {
-    produceFlu(){
+    producebacteria(){
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else {
-            gameStatus.fluAnti = true;
+            gameStatus.bacteriaAnti = true;
         }
     }
 }
 
-display.updateDisplay()
+display.updateDisplay();
+DOM.regulateTool.innerHTML = `Avoid damage when ending turn. Turns Remaining: ${gameStatus.bacteriaAntiCount}`
