@@ -196,6 +196,22 @@
     display:none
 }
 
+#picture-4{
+    display:none
+}
+
+#picture-5{
+    display:none
+}
+
+#picture-6{
+    display:none
+}
+
+#picture-7{
+    display:none
+}
+
 .body-system-btns-container{
     grid-column: 1/2;
     grid-row: 2/5;
