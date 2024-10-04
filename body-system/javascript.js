@@ -19,9 +19,18 @@ const DOM = {
     healthDisplay: document.querySelector(".health-display"),
     turnDisplay: document.querySelector(".turn-display"),
     co2Display: document.querySelector(".co2-display"),
+    avOxDisplay: document.querySelector(".oxygen-av"),
+    avAmiDisplay: document.querySelector(".amino-av"),
+    avWatDisplay: document.querySelector(".water-av"),
+    avCarbDisplay: document.querySelector(".carbs-av"),
+    avGluDisplay: document.querySelector(".glucose-av"),
+    avProDisplay: document.querySelector(".protein-av"),
+    displayMessage: document.querySelector(".message-text"),
 
     regulateImg: document.querySelector("#picture-1"),
-    regulateTool: document.querySelector("#regulate-tooltip")
+    regulateTool: document.querySelector("#regulate-tooltip"),
+
+    testSpan: document.querySelector("#test-span")
 
 
     
@@ -92,6 +101,13 @@ const display = {
         DOM.unAminoDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.pamino}`;
         DOM.unGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.pglucose}`;
         DOM.unWaterDisplay.innerHTML = `<b>Water</b>: ${gameVariables.pwater}`;
+        DOM.avWatDisplay.innerHTML = `<b>Water</b>: ${gameVariables.water}`;
+        DOM.avOxDisplay.innerHTML = `<b>Oxygen</b>: ${gameVariables.oxygen}`;
+        DOM.avAmiDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.amino}`;
+        DOM.avCarbDisplay.innerHTML = `<b>Carbs</b>: ${gameVariables.carbs}`;
+        DOM.avGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.glucose}`;
+        DOM.avWatDisplay.innerHTML = `<b>Water</b>: ${gameVariables.water}`;
+        DOM.avProDisplay.innerHTML = `<b>Protein</b>: ${gameVariables.protein}`;
         DOM.turnDisplay.innerHTML= `<b>Turn:</b> ${gameController.turnCount}`
         DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
         DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`
@@ -105,12 +121,15 @@ const display = {
   const gameStatus = {
     eventActive: false,
     regulateOn: false,
+    regulateOnCount: 3,
     overheatOn: false,
     lowEnergy: false,
     increaseBreath: false,
     increaseBreathCount: 2,
     increaseHeart: false,
     increaseHeartCount: 2,
+    exerciseLungs: false,
+    exerciseHeart: false,
     sweatOn: false,
     co2Over: false,
     melatoninOn: false,
@@ -118,10 +137,10 @@ const display = {
     adrenCount: 2,
     insuOn: false,
     insCount: 2,
-    bacteriaOn: false,
-    bacteriaAnti: false,
-    bacteriaAntiCount: 3,
-    bacteriaCreated: false,
+    fluOn: false,
+    fluAnti: false,
+    fluAntiCount: 3,
+    fluCreated: false,
     bacteriaOn: false,
     bacteriaAnti: false,
     bacteriaAntiCount: 3,
@@ -131,6 +150,7 @@ const display = {
     parasiteAntiCount: false,
     parasiteCreated: false,
     injuryOn: false,
+
 
 
     clearStatus(){
@@ -184,6 +204,7 @@ const gameController = {
     noActions: false,
     turnCount: 1,
     healthRate: 1,
+    upgrateRate: 0,
     
     endTurn(){
         this.checkActions();
@@ -252,22 +273,22 @@ const gameController = {
                 }
             }
 
-            if(gameStatus.bacteriaOn === true){
-                if(gameStatus.bacteriaCreated === true){
-                    gameStatus.bacteriaOn = false;
-                    gameStatus.bacteriaAnti = false;
+            if(gameStatus.fluOn === true){
+                if(gameStatus.fluCreated === true){
+                    gameStatus.fluOn = false;
+                    gameStatus.fluAnti = false;
                     gameStatus.eventActive = false;
-                    console.log("you defeated the bacteria with memory cells!")
+                    console.log("you defeated the flu with memory cells!")
 
-                } else if(gameStatus.bacteriaAnti === true){
-                    if(gameStatus.bacteriaAntiCount === 0){
-                        gameStatus.bacteriaCreated = true;
-                        gameStatus.bacteriaAnti = false;
-                        gameStatus.bacteriaOn = false;
+                } else if(gameStatus.fluAnti === true){
+                    if(gameStatus.fluAntiCount === 0){
+                        gameStatus.fluCreated = true;
+                        gameStatus.fluAnti = false;
+                        gameStatus.fluOn = false;
                         gameStatus.eventActive = false;
-                        console.log("you defeated the bacteria!")
+                        console.log("you defeated the flu!")
                     } else{
-                        gameStatus.bacteriaAntiCount -= 1;
+                        gameStatus.fluAntiCount -= 1;
                         gameVariables.health = Math.max(0,gameVariables.health -= 1)
                     }
                 } else{
@@ -303,8 +324,10 @@ const gameController = {
             gameVariables.amino = Math.max(0,gameVariables.amino -= 2)
             if(!gameStatus.regulateOn){
                     gameVariables.health = Math.max(0,gameVariables.health -= this.healthRate);
-            } else{
+            } else if(gameStatus.regulateOnCount === 0){
                 gameStatus.regulateOn = false;
+            } else {
+                gameStatus.regulateOnCount -= 1
             }
            /* let conditionsMet = 0
             const condition1 = gameVariables.oxygen === 0;
@@ -536,14 +559,19 @@ const respSystem = {
     exerciseResp(){
 
         const cost = {
-            glucose: 3,
-            amino: 3
+            glucose: 3 + gameController.upgrateRate,
+            amino: 3 + gameController.upgrateRate,
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else if(gameController.checkResources(cost,gameVariables)){
-            gameVariables.glucose -= 3
+            gameVariables.glucose -= 3;
+            gameVariables.amino -= 3;
+            gameVariables.actions -= 1;
+            gameVariables.co2 += 3;
+            gameStatus.exerciseLungs = true;
+
         }
     }
 }
@@ -643,10 +671,14 @@ const digestSystem = {
 
 const endoSystem = {
     produceMel(){
+       const cost = {
+            amino: 3,
+            glucose: 1
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else {
+        } else if(gameController.checkResources(cost, gameVariables)) {
             gameVariables.actions -= 1;
             gameVariables.amino -= 3;
             gameVariables.glucose -= 1;
@@ -656,10 +688,14 @@ const endoSystem = {
     },
 
     produceAdr(){
+        const cost = {
+            amino: 3,
+            glucose: 1
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else {
+        } else if(gameController.checkResources(cost, gameVariables)) {
             gameVariables.actions -= 1;
             gameVariables.amino -= 3;
             gameVariables.glucose -= 1;
@@ -669,10 +705,14 @@ const endoSystem = {
     },
 
     produceIns(){
+        const cost = {
+            amino: 3,
+            glucose: 1
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else {
+        } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.actions -= 1;
             gameVariables.amino -= 3;
             gameVariables.glucose -= 1;
@@ -684,10 +724,16 @@ const endoSystem = {
 
 const nervSystem = {
     regulateSystems(){
+        cost = {
+            oxygen: 2,
+            glucose: 2,
+            water: 2,
+            amino: 2
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else{
+        } else if (gameController.checkResources(cost, gameVariables)){
             gameStatus.regulateOn = true;
             gameVariables.oxygen -= 2;
             gameVariables.glucose -= 2;
@@ -711,10 +757,16 @@ const nervSystem = {
     },
 
     goSleep(){
+        const cost = {
+            amino: 3,
+            water: 3,
+            glucose: 3,
+            oxygen: 3
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else if(gameStatus.melatoninOn === true){
+        } else if(gameStatus.melatoninOn === true && gameController.checkResources(cost,gameVariables)){
             gameStatus.melatoninOn = false;
             gameVariables.amino-=3;
             gameVariables.water-=3;
@@ -722,7 +774,7 @@ const nervSystem = {
             gameVariables.oxygen-=3;
             gameVariables.health+=2;
             gameVariables.actions-=1
-        } else{
+        } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.amino-=3;
             gameVariables.water-=3;
             gameVariables.glucose-=3;
@@ -734,11 +786,14 @@ const nervSystem = {
 }
 
 const immuSystem = {
-    producebacteria(){
+    produceBacteria(){
+        cost = {
+            amino: 2
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else {
+        } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.bacteriaAnti = true;
             gameVariables.amino-=2
             gameVariables.actions -=1;
@@ -746,15 +801,30 @@ const immuSystem = {
     }
 }
 
-function testTruth(){
-    return false
-}
 
-function testCond(){
-    if(testTruth()){
-        console.log("this is true")
+const upgrades = {
+    get respGluCost() {
+        return 3 + gameController.upgrateRate
+    },
+    upgradeHealth(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameStatus.exerciseHeart === true && gameStatus.exerciseLungs === true){
+            gameVariables.maxHealth += 5;
+            gameController.upgrateRate += 2;
+            DOM.regulateTool.innerHTML = `Cost is <span id="test-span"></span>`
+            DOM.testSpan = document.querySelector("#test-span")
+            DOM.testSpan.textContent = `${this.respGluCost} glucose`
+        } else {
+            console.log("have not met conditions")
+        }
     }
 }
 
+
+
+
+
 display.updateDisplay();
-DOM.regulateTool.innerHTML = `Avoid damage when ending turn. Turns Remaining: ${gameStatus.bacteriaAntiCount}`
+DOM.regulateTool.innerHTML = ``
