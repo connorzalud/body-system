@@ -103,7 +103,7 @@
 
 .tooltip-wrapper .tooltip {
     visibility: hidden;
-    width: 100px; /* Adjust width as needed */
+    width: 190px; /* Adjust width as needed */
     background-color: lightblue;
     color: black;
     text-align: center;
@@ -213,6 +213,27 @@
 }
 
 #picture-8{
+    display:none
+}
+#picture-9{
+    display:none
+}
+#picture-10{
+    display:none
+}
+#picture-11{
+    display:none
+}
+#picture-12{
+    display:none
+}
+#picture-13{
+    display:none
+}
+#picture-14{
+    display:none
+}
+#picture-15{
     display:none
 }
 
@@ -358,6 +379,9 @@
     grid-row: 2/3;
     grid-column: 1/5;
     border: 1px solid black;
+    display:grid;
+    justify-items: center;
+    align-items: center;
 }
 
 .status-text{
@@ -399,9 +423,4 @@
 
 .upgrade-buttons{
     display:none
-}
-
-.message-text{
-    justify-self: center;
-    align-self: center;
 }
