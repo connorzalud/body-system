@@ -142,6 +142,7 @@ function testTurn(){
     parasiteAnti: false,
     parasiteAntiCount: false,
     parasiteCreated: false,
+    injuryOn: false,
 
 
     clearStatus(){
@@ -174,7 +175,17 @@ function testTurn(){
                     this.eventActive = false;
                     gameVariables.actions -=1;
                     
+                } else{
+                    console.log("do not meet requirements")
                 }
+        } else if(this.injuryOn === true){
+            if(gameVariables.amino >=2 && gameVariables.glucose >= 2){
+                this.injuryOn = false;
+                this.eventActive = false;
+                gameVariables.actions -= 1;
+            } else {
+                console.log("do not meet requirements")
+            }
         } else{
             console.log("You can't resolve the event here!")
         }
@@ -226,6 +237,10 @@ const gameController = {
 
             if(gameStatus.overheatOn === true){
                 gameVariables.water = Math.max(0,gameVariables.water -= 2);
+            }
+
+            if(gameStatus.injuryOn === true){
+                gameVariables.health = (Math.max(0,gameVariables.health -= 1))
             }
 
             if(gameStatus.adrenOn === true){
@@ -355,6 +370,47 @@ const gameController = {
       
         return "Default phrase";
       },
+
+      checkResources(cost, resources){
+
+        const resourceName = {
+            oxygen: "Oxygen",
+            water: "Water",
+            glucose: "Glucose",
+            amino: "Amino Acids",
+            carbs: "Carbohydrates",
+            protein: "Protein"
+        }
+    
+        let insufficientResources = [];  // To store all insufficient resources
+    
+    for (let resource in cost) {
+        if (resources[resource] < cost[resource]) {
+            console.log(`Not enough ${resource}: ${resources[resource]} < ${cost[resource]}`);
+           let displayName = resourceName[resource];
+           let resourceCost = cost[resource];
+           let playerAmount = resources[resource];
+           insufficientResources.push(`${displayName}: ${playerAmount}/${resourceCost}`);
+              
+        } else {
+            console.log(`Sufficient ${resource}: ${resources[resource]} >= ${cost[resource]}`);
+        }
+    }
+
+    if (insufficientResources.length > 0) {
+        console.log("Insufficient resources:", insufficientResources.join(", "));
+        return false;  // Return false if any resource is insufficient
+    }
+
+    return true;  // Return true if all resources are sufficient
+      }
+}
+
+
+const testCheck = {
+    glucose: 1,
+    oxygen: 6,
+    amino: 3
 }
 
 const gameEvents = {
@@ -410,6 +466,16 @@ events: [
 
 
     },
+    { range: [18,20], 
+        situation: ()=> {
+            "event 6"
+            gameStatus.injuryOn = true;
+            gameStatus.eventActive = true;
+            console.log("The body was injured!")
+        }
+
+
+    },
 ]
 }
 
@@ -447,12 +513,17 @@ const respSystem = {
     },
 
     increaseBreath(){
+
+        const cost = {
+            glucose: 2
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions");
         } else if(gameStatus.increaseBreath === true){
             console.log("Breathing is already increased!")
-        } else{
+        } else if(gameController.checkResources(cost, gameVariables)){
+            gameVariables.glucose -= 2;
             gameStatus.increaseBreath = true
             gameVariables.actions -= 1;
             console.log("The respiratory system has increased breathing, bringing more oxygen into the body!") 
@@ -461,10 +532,16 @@ const respSystem = {
     },
 
     releaseCO2(){
+
+        const cost = {
+            glucose: 2,
+            amino: 2,
+            water: 2
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else{
+        } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.co2 -= 10;
             gameVariables.glucose -= 2;
             gameVariables.amino -=2;
@@ -476,6 +553,7 @@ const respSystem = {
 
 const circSystem = {
     makeAvailable(){
+        
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
@@ -500,18 +578,21 @@ const circSystem = {
             gameVariables.water += gameVariables.pwater;
             gameVariables.pwater = 0;
             gameVariables.actions -= 1;
-            gameVariables.co2 += 4;
+            gameVariables.co2 += 5;
 
         }
     },
 
     increaseHeart(){
+        let cost = {
+            glucose: 2
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions");
         } else if(gameStatus.increaseHeart === true){
             console.log("Heart rate is already increased!")
-        } else{
+        } else if(gameController.checkResources(cost,gameVariables)){
             gameStatus.increaseHeart = true;
             gameVariables.glucose -=2;
             gameVariables.actions -= 1;
@@ -522,10 +603,14 @@ const circSystem = {
 
 const digestSystem = {
     getNutrients(){
+        let cost = {
+            amino: 1,
+            glucose: 1
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else{
+        } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.actions -=1;
             gameVariables.pwater +=3;
             gameVariables.carbs += 2;
@@ -538,17 +623,21 @@ const digestSystem = {
     },
 
     digestNutrients(){
+        cost = {
+            amino: 2,
+            glucose: 1
+        }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else{
+        } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.actions -=1;
             gameVariables.pamino = gameVariables.protein*2 + gameVariables.pamino;
             gameVariables.pglucose = gameVariables.carbs*2 + gameVariables.pglucose;
             gameVariables.carbs = 0;
             gameVariables.protein = 0;
             gameVariables.co2 += 3;
-            gameVariables.amino -=1;
+            gameVariables.amino -=2;
             gameVariables.glucose -=1;
 
         }
@@ -654,6 +743,8 @@ const immuSystem = {
             console.log("out of actions")
         } else {
             gameStatus.bacteriaAnti = true;
+            gameVariables.amino-=2
+            gameVariables.actions -=1;
         }
     }
 }
