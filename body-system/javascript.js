@@ -102,18 +102,6 @@ const display = {
 
 
 
-
-function testTurn(){
-    ++counter;
-    if(counter % 5 === 0){
-        rate += 1
-    } 
-    
-    number += rate;
-    console.log(counter);
-    console.log(number)
-  }
-
   const gameStatus = {
     eventActive: false,
     regulateOn: false,
@@ -407,11 +395,6 @@ const gameController = {
 }
 
 
-const testCheck = {
-    glucose: 1,
-    oxygen: 6,
-    amino: 3
-}
 
 const gameEvents = {
 events: [
@@ -547,6 +530,20 @@ const respSystem = {
             gameVariables.amino -=2;
             gameVariables.water -=2;
             gameVariables.actions -=1
+        }
+    },
+
+    exerciseResp(){
+
+        const cost = {
+            glucose: 3,
+            amino: 3
+        }
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameController.checkResources(cost,gameVariables)){
+            gameVariables.glucose -= 3
         }
     }
 }
@@ -746,6 +743,16 @@ const immuSystem = {
             gameVariables.amino-=2
             gameVariables.actions -=1;
         }
+    }
+}
+
+function testTruth(){
+    return false
+}
+
+function testCond(){
+    if(testTruth()){
+        console.log("this is true")
     }
 }
 
