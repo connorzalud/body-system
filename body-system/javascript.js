@@ -26,10 +26,14 @@ const DOM = {
     avGluDisplay: document.querySelector(".glucose-av"),
     avProDisplay: document.querySelector(".protein-av"),
     displayMessage: document.querySelector(".message-text"),
-
+    endBtn: document.querySelector("#end-turn"),
+    regulateSystemsBtn: document.querySelector("#regulate-systems-btn"),
     regulateImg: document.querySelector("#picture-1"),
-    regulateTool: document.querySelector("#regulate-tooltip"),
-
+    regulateImgTool: document.querySelector("#regulate-tooltip"),
+    regulateBtnTool: document.querySelector("#regulate-btn-tooltip"),
+    sleepBtn: document.querySelector("#sleep-btn"),
+    sleepBtnTool: document.querySelector("#sleep-btn-tooltip"),
+    sweatBtn: document.querySelector("#sweat-btn"),
     testSpan: document.querySelector("#test-span")
 
 
@@ -93,6 +97,20 @@ DOM.immuneBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "grid";
 })
 
+DOM.endBtn.addEventListener("click", function(){
+    gameController.endTurn()
+})
+
+DOM.regulateSystemsBtn.addEventListener("click",function(){
+    nervSystem.regulateSystems()
+})
+DOM.regulateBtnTool.innerHTML = "Regulate all body systems together. Adds `Regulate Systems` status. Cost: 2 oxygen, 2 glucose, 2 water, 2 amino acids";
+
+DOM.sleepBtn.addEventListener("click", function(){
+    nervSystem.goSleep()
+})
+DOM.sleepBtnTool.innerHTML = "Causes body to sleep. Restores 1 point of health. Cost: 3 oxygen, 3 glucose, 3 water, 3 amino acids"
+
 const display = {
 
     updateDisplay(){
@@ -110,7 +128,9 @@ const display = {
         DOM.avProDisplay.innerHTML = `<b>Protein</b>: ${gameVariables.protein}`;
         DOM.turnDisplay.innerHTML= `<b>Turn:</b> ${gameController.turnCount}`
         DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
-        DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`
+        DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`;
+
+        DOM.regulateImgTool.innerHTML= `<b>Regulate Systems</b>: Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`
 
     }
 
@@ -131,6 +151,7 @@ const display = {
     exerciseLungs: false,
     exerciseHeart: false,
     sweatOn: false,
+    sweatOnCount:3,
     co2Over: false,
     melatoninOn: false,
     adrenOn: false,
@@ -141,14 +162,17 @@ const display = {
     fluAnti: false,
     fluAntiCount: 3,
     fluCreated: false,
+    fluMem: false,
     bacteriaOn: false,
     bacteriaAnti: false,
     bacteriaAntiCount: 3,
     bacteriaCreated: false,
+    bacMem: false,
     parasiteOn: false,
     parasiteAnti: false,
     parasiteAntiCount: false,
     parasiteCreated: false,
+    parasiteMem: false,
     injuryOn: false,
 
 
@@ -204,7 +228,7 @@ const gameController = {
     noActions: false,
     turnCount: 1,
     healthRate: 1,
-    upgrateRate: 0,
+    upgradeRate: 0,
     
     endTurn(){
         this.checkActions();
@@ -237,6 +261,15 @@ const gameController = {
                     gameStatus.increaseBreathCount -=1
                 }
             }
+
+            if(gameStatus.sweatOn === true){
+                if(gameStatus.sweatOnCount === 1){
+                    gameStatus.sweatOn=false;
+                    gameStatus.sweatOnCount = 3;
+                } else {
+                    gameStatus.sweatOnCount -= 1
+                }
+            }
             
             if(gameStatus.lowEnergy === true){
                     gameVariables.water = Math.max(0,gameVariables.water -= 1);
@@ -246,6 +279,7 @@ const gameController = {
 
             if(gameStatus.overheatOn === true){
                 gameVariables.water = Math.max(0,gameVariables.water -= 2);
+                gameVariables.actions -=1
             }
 
             if(gameStatus.injuryOn === true){
@@ -318,14 +352,43 @@ const gameController = {
                     gameVariables.health = Math.max(0,gameVariables.health -= 1)
                 }
             }
-            gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= 2);
-            gameVariables.water = Math.max(0,gameVariables.water -= 2);
-            gameVariables.glucose = Math.max(0,gameVariables.glucose -= 2);
-            gameVariables.amino = Math.max(0,gameVariables.amino -= 2)
+            if(gameStatus.parasiteOn === true){
+                if(gameStatus.parasiteCreated === true){
+                    gameStatus.parasiteOn = false;
+                    gameStatus.parasiteAnti = false;
+                    gameStatus.eventActive = false;
+                    console.log("you defeated the parasite with memory cells!")
+
+                } else if(gameStatus.bacteriaAnti === true){
+                    if(gameStatus.parasiteAntiCount === 0){
+                        gameStatus.parasiteCreated = true;
+                        gameStatus.parasiteAnti = false;
+                        gameStatus.parasiteOn = false;
+                        gameStatus.eventActive = false;
+                        console.log("you defeated the parasite!")
+                    } else{
+                        gameStatus.parasiteAntiCount -= 1;
+                        gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                    }
+                } else{
+                    gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                }
+            }
+
+            const turnThreshold = 10
+            const costAddition = Math.floor(this.turnCount/turnThreshold)
+            const cost = {
+                resource: 2 + costAddition
+            }
+            gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= cost.resource);
+            gameVariables.water = Math.max(0,gameVariables.water -= cost.resource);
+            gameVariables.glucose = Math.max(0,gameVariables.glucose -= cost.resource);
+            gameVariables.amino = Math.max(0,gameVariables.amino -= cost.resource)
             if(!gameStatus.regulateOn){
                     gameVariables.health = Math.max(0,gameVariables.health -= this.healthRate);
-            } else if(gameStatus.regulateOnCount === 0){
+            } else if(gameStatus.regulateOnCount === 1){
                 gameStatus.regulateOn = false;
+                DOM.regulateImg.style.display = "none"
             } else {
                 gameStatus.regulateOnCount -= 1
             }
@@ -353,12 +416,14 @@ const gameController = {
             gameVariables.health = Math.max(0,gameVariables.oxygen -= conditionsMet);*/
             console.log(gameVariables);
             console.log(gameController);
+            display.updateDisplay()
             if(gameVariables.health === 0){
                 console.log(`Game over! Health: ${gameVariables.health}`);
             }
     
         } else {
-            console.log(`actions remaining: ${gameVariables.actions}`)
+            console.log(`actions remaining: ${gameVariables.actions}`);
+            DOM.displayMessage.innerHTML = `Actions remaining: ${gameVariables.actions}`
         }
     
     },
@@ -410,6 +475,7 @@ const gameController = {
 
     if (insufficientResources.length > 0) {
         console.log("Insufficient resources:", insufficientResources.join(", "));
+        DOM.displayMessage.textContent = `Not enough available resources: ${insufficientResources.join(", ")}`;
         return false;  // Return false if any resource is insufficient
     }
 
@@ -486,12 +552,12 @@ events: [
 }
 
 const gameVariables = {
-    oxygen: 5,
-    water: 5,
+    oxygen: 20,
+    water: 20,
     carbs: 1,
-    glucose: 2,
+    glucose: 20,
     protein: 1,
-    amino: 2,
+    amino: 20,
     co2: 0,
     poxygen: 5,
     pwater: 5,
@@ -559,15 +625,15 @@ const respSystem = {
     exerciseResp(){
 
         const cost = {
-            glucose: 3 + gameController.upgrateRate,
-            amino: 3 + gameController.upgrateRate,
+            glucose: 3 + gameController.upgradeRate,
+            amino: 3 + gameController.upgradeRate,
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
         } else if(gameController.checkResources(cost,gameVariables)){
-            gameVariables.glucose -= 3;
-            gameVariables.amino -= 3;
+            gameVariables.glucose -= cost.glucose;
+            gameVariables.amino -= cost.amino;
             gameVariables.actions -= 1;
             gameVariables.co2 += 3;
             gameStatus.exerciseLungs = true;
@@ -732,8 +798,13 @@ const nervSystem = {
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
-        } else if (gameController.checkResources(cost, gameVariables)){
+            console.log("out of actions");
+            DOM.displayMessage.textContent = "Out of actions"
+        } else if(gameStatus.regulateOn === true){
+            DOM.displayMessage.textContent = "Regulate Systems is already active"
+        } 
+        
+        else if (gameController.checkResources(cost, gameVariables)){
             gameStatus.regulateOn = true;
             gameVariables.oxygen -= 2;
             gameVariables.glucose -= 2;
@@ -741,6 +812,9 @@ const nervSystem = {
             gameVariables.amino -= 2;
             gameVariables.co2 += 2;
             gameVariables.actions--;
+            DOM.displayMessage.textContent = "Regulate on";
+            DOM.regulateImg.style.display = "block";
+            display.updateDisplay()
 
         }
     },
@@ -798,13 +872,54 @@ const immuSystem = {
             gameVariables.amino-=2
             gameVariables.actions -=1;
         }
+    },
+    produceFlu(){
+        cost = {
+            amino: 2
+        }
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameController.checkResources(cost, gameVariables)){
+            gameStatus.fluAnti = true;
+            gameVariables.amino-=2
+            gameVariables.actions -=1;
+        }
+    },
+    produceParasite(){
+        cost = {
+            amino: 2
+        }
+        gameController.checkActions()
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameController.checkResources(cost, gameVariables)){
+            gameStatus.parasiteAnti = true;
+            gameVariables.amino-=2
+            gameVariables.actions -=1;
+        }
+    },
+
+    produceMemoryCell(cell){
+        const cost = {
+            amino:2
+        }
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            console.log("out of actions")
+        } else if(gameStatus.bacteriaCreated===false || gameStatus.fluCreated === false || gameStatus.parasiteCreated === false){
+            console.log("You can't produce any memory cells yet.")
+
+        } else if(cell === "1"){
+
+        }
     }
 }
 
 
 const upgrades = {
     get respGluCost() {
-        return 3 + gameController.upgrateRate
+        return 3 + gameController.upgradeRate
     },
     upgradeHealth(){
         gameController.checkActions();
@@ -812,7 +927,7 @@ const upgrades = {
             console.log("out of actions")
         } else if(gameStatus.exerciseHeart === true && gameStatus.exerciseLungs === true){
             gameVariables.maxHealth += 5;
-            gameController.upgrateRate += 2;
+            gameController.upgradeRate += 2;
             DOM.regulateTool.innerHTML = `Cost is <span id="test-span"></span>`
             DOM.testSpan = document.querySelector("#test-span")
             DOM.testSpan.textContent = `${this.respGluCost} glucose`
@@ -827,4 +942,4 @@ const upgrades = {
 
 
 display.updateDisplay();
-DOM.regulateTool.innerHTML = ``
+
