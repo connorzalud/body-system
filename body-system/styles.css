@@ -357,9 +357,51 @@
 .message-text{
     grid-row: 2/3;
     grid-column: 1/5;
+    border: 1px solid black;
 }
 
 .status-text{
     grid-row: 3/4;
     grid-column: 1/5;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.upgrade-container{
+    grid-column: 1/2;
+    border: 1px solid black;
+    display:grid;
+    grid-template-rows: auto;
+    justify-items: center;
+    align-items: center;
+}
+
+.event-container{
+    grid-column: 2/4;
+    border: 1px solid black;
+    display: grid;
+    grid-template-rows: 40px 1fr 35px;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.event-container p{
+    justify-self: center;
+}
+
+#resolve-button{
+    height:fit-content;
+    width: fit-content;
+    justify-self: center;
+    align-self: center;
+}
+
+.upgrade-buttons{
+    display:none
+}
+
+.message-text{
+    justify-self: center;
+    align-self: center;
 }
