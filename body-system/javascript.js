@@ -1,4 +1,7 @@
 const DOM = {
+
+    actionMessage: "No more remaining actions.",
+
     nerveBtn: document.querySelector("#nervous-button"),
     respBtn: document.querySelector("#resp-button"),
     circBtn: document.querySelector("#circ-button"),
@@ -35,6 +38,14 @@ const DOM = {
     sleepBtn: document.querySelector("#sleep-btn"),
     sleepBtnTool: document.querySelector("#sleep-btn-tooltip"),
     sweatBtn: document.querySelector("#sweat-btn"),
+    sweatBtnTool: document.querySelector("#sweat-btn-tooltip"),
+    getOxBtn: document.querySelector("#get-oxygen"),
+    getOxTool: document.querySelector("#get-oxygen-tooltip"),
+    breathBtn: document.querySelector("#breathing-btn"),
+    breathBtnTool: document.querySelector("#breathing-btn-tooltip"),
+    breathImg: document.querySelector("#picture-3"),
+    breathImgTool: document.querySelector("#breathing-tooltip"),
+    
 
 
     memCellBtn: document.querySelector("#mem-cell-btn"),
@@ -115,16 +126,32 @@ DOM.endBtn.addEventListener("click", function(){
     gameController.endTurn()
 })
 
+//nervous system buttons
 DOM.regulateSystemsBtn.addEventListener("click",function(){
     nervSystem.regulateSystems()
 })
-DOM.regulateBtnTool.innerHTML = "Regulate all body systems together. Adds `Regulate Systems` status. Cost: 2 oxygen, 2 glucose, 2 water, 2 amino acids";
+DOM.regulateBtnTool.innerHTML = "Regulate all body systems together. Adds `<b>Regulate Systems</b>` status. <b>Cost:</b> 2 oxygen, 2 glucose, 2 water, 2 amino acids";
 
 DOM.sleepBtn.addEventListener("click", function(){
     nervSystem.goSleep()
 })
-DOM.sleepBtnTool.innerHTML = "Causes body to sleep. Restores 1 point of health. Cost: 3 oxygen, 3 glucose, 3 water, 3 amino acids"
+DOM.sleepBtnTool.innerHTML = "Causes body to sleep. Restores 1 point of health. <b>Cost:</b> 3 oxygen, 3 glucose, 3 water, 3 amino acids"
 
+DOM.sweatBtn.addEventListener("click", function(){
+    nervSystem.produceSweat()
+})
+DOM.sweatBtnTool.innerHTML = "Causes body to sweat. Adds '<b>Sweating</b>' status. <b>Cost:</b> 3 water."
+
+//respiratory system buttons
+DOM.getOxBtn.addEventListener("click", function(){
+    respSystem.getOxygen()
+})
+DOM.getOxTool.innerHTML = `Bring oxygen into the body by inhaling. Increase <b>potential</b> oxygen by 4`
+
+DOM.breathBtn.addEventListener("click", function(){
+    respSystem.increaseBreath()
+})
+DOM.breathBtnTool.innerHTML="Increase breathing rate. Adds <b>'Increased Breathing'</b> status. <b>Cost:</b> 2 glucose."
 
 DOM.memCellBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "none";
@@ -160,8 +187,23 @@ const display = {
         DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
         DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`;
 
-        DOM.regulateImgTool.innerHTML= `<b>Regulate Systems</b>: Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`
+        DOM.regulateImgTool.innerHTML= `<b>Regulate Systems:</b> Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`;
+        DOM.breathImgTool.innerHTML = `<b>Increased Breathing:</b> While active, increase <b>potential</b> oxygen by additional 4 when using <b>Get Oxygen</b>. Turns Remaining: ${gameStatus.increaseBreathCount}`
 
+    },
+
+    turnRed(div){
+        div.style.color = "red"
+        setTimeout(function(){
+            div.style.color = "";
+        },900)
+    },
+
+    turnGreen(div){
+        div.style.color = "green"
+        setTimeout(function(){
+            div.style.color = "";
+        },900)
     }
 
 }
@@ -610,14 +652,22 @@ const respSystem = {
     getOxygen(){
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.innerHTML = DOM.actionMessage
         } else if(gameStatus.increaseBreath === true){
             gameVariables.poxygen += 8;
             gameVariables.actions-=1;
+            DOM.displayMessage.innerHTML = "More oxygen has been brought inside the body."
+            display.updateDisplay();
+            display.turnGreen(DOM.unOxDisplay);
+            display.turnRed(DOM.actionDisplay);
         } else{
             gameVariables.poxygen += 4;
             gameVariables.actions -= 1;
-            console.log(gameVariables)
+            DOM.displayMessage.innerHTML = "More oxygen has been brought inside the body."
+            display.updateDisplay();
+            display.turnGreen(DOM.unOxDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
         
     },
@@ -630,13 +680,20 @@ const respSystem = {
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions");
+            DOM.displayMessage.innerHTML = DOM.actionMessage
         } else if(gameStatus.increaseBreath === true){
-            console.log("Breathing is already increased!")
+            console.log("Breathing is already increased!");
+            DOM.displayMessage.innerHTML = 'Breathing is already increased!'
         } else if(gameController.checkResources(cost, gameVariables)){
-            gameVariables.glucose -= 2;
+            gameVariables.glucose -= cost.glucose;
             gameStatus.increaseBreath = true
             gameVariables.actions -= 1;
-            console.log("The respiratory system has increased breathing, bringing more oxygen into the body!") 
+            DOM.breathImg.style.display = "grid";
+            DOM.displayMessage.innerHTML = "The respiratory system has increased breathing, bringing more oxygen into the body!";
+            display.updateDisplay();
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.actionDisplay);
+
         }
         
     },
@@ -752,7 +809,7 @@ const digestSystem = {
     },
 
     digestNutrients(){
-        cost = {
+       const cost = {
             amino: 2,
             glucose: 1
         }
@@ -828,7 +885,7 @@ const endoSystem = {
 
 const nervSystem = {
     regulateSystems(){
-        cost = {
+        const cost = {
             oxygen: 2,
             glucose: 2,
             water: 2,
@@ -858,12 +915,17 @@ const nervSystem = {
     },
 
     produceSweat(){
+
+       const cost = {
+            water: 3
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else{
+        } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.sweatOn = true;
             gameVariables.actions -= 1;
+            gameVariables.water -= cost.water
 
         }
     },
@@ -899,7 +961,7 @@ const nervSystem = {
 
 const immuSystem = {
     produceBacteria(){
-        cost = {
+       const cost = {
             amino: 2
         }
         gameController.checkActions()
@@ -912,7 +974,7 @@ const immuSystem = {
         }
     },
     produceFlu(){
-        cost = {
+       const cost = {
             amino: 2
         }
         gameController.checkActions()
@@ -925,7 +987,7 @@ const immuSystem = {
         }
     },
     produceParasite(){
-        cost = {
+        const cost = {
             amino: 2
         }
         gameController.checkActions()
