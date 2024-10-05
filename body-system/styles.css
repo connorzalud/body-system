@@ -331,6 +331,13 @@
 
 }
 
+#mem-cell-btns{
+    display:none;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-column: 1/3
+}
+
 .messages-container{
     display:grid;
     grid-template-rows: 1fr 1fr 1fr;
