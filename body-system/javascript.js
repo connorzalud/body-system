@@ -11,6 +11,7 @@ const DOM = {
     digestBtnContain: document.querySelector("#digestive-system-btns"),
     endoBtnContain: document.querySelector("#endocrine-system-btns"),
     immuneBtnContain:document.querySelector("#immune-system-btns"),
+    memCellBtnContain:document.querySelector("#mem-cell-btns"),
     actionDisplay: document.querySelector(".action-display"),
     unOxDisplay: document.querySelector("#oxygen-un"),
     unGluDisplay: document.querySelector("#glucose-un"),
@@ -34,7 +35,14 @@ const DOM = {
     sleepBtn: document.querySelector("#sleep-btn"),
     sleepBtnTool: document.querySelector("#sleep-btn-tooltip"),
     sweatBtn: document.querySelector("#sweat-btn"),
-    testSpan: document.querySelector("#test-span")
+
+
+    memCellBtn: document.querySelector("#mem-cell-btn"),
+    memCellBackBtn: document.querySelector("#mem-cell-back"),
+    fluMemBtn: document.querySelector("#flu-mem-btn"),
+    
+
+
 
 
     
@@ -50,6 +58,7 @@ DOM.nerveBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "none";
     DOM.endoBtnContain.style.display = "none";
     DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.respBtn.addEventListener("click", function(){
@@ -59,6 +68,7 @@ DOM.respBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "none";
     DOM.endoBtnContain.style.display = "none";
     DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.circBtn.addEventListener("click", function(){
@@ -68,6 +78,7 @@ DOM.circBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "none";
     DOM.endoBtnContain.style.display = "none";
     DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.digestBtn.addEventListener("click", function(){
@@ -77,6 +88,7 @@ DOM.digestBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "grid";
     DOM.endoBtnContain.style.display = "none";
     DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.endoBtn.addEventListener("click", function(){
@@ -86,6 +98,7 @@ DOM.endoBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "none";
     DOM.endoBtnContain.style.display = "grid";
     DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.immuneBtn.addEventListener("click", function(){
@@ -95,6 +108,7 @@ DOM.immuneBtn.addEventListener("click", function(){
     DOM.digestBtnContain.style.display = "none";
     DOM.endoBtnContain.style.display = "none";
     DOM.immuneBtnContain.style.display = "grid";
+    DOM.memCellBtnContain.style.display = "none";
 })
 
 DOM.endBtn.addEventListener("click", function(){
@@ -110,6 +124,22 @@ DOM.sleepBtn.addEventListener("click", function(){
     nervSystem.goSleep()
 })
 DOM.sleepBtnTool.innerHTML = "Causes body to sleep. Restores 1 point of health. Cost: 3 oxygen, 3 glucose, 3 water, 3 amino acids"
+
+
+DOM.memCellBtn.addEventListener("click", function(){
+    DOM.immuneBtnContain.style.display = "none";
+    DOM.memCellBtnContain.style.display = "grid";
+})
+
+DOM.memCellBackBtn.addEventListener("click", function(){
+    DOM.immuneBtnContain.style.display = "grid";
+    DOM.memCellBtnContain.style.display = "none";
+})
+
+DOM.fluMemBtn.addEventListener("click", function(){
+    immuSystem.produceMemoryCell(1)
+})
+
 
 const display = {
 
@@ -173,6 +203,7 @@ const display = {
     parasiteAntiCount: false,
     parasiteCreated: false,
     parasiteMem: false,
+    memCellCreated: false,
     injuryOn: false,
 
 
@@ -229,6 +260,7 @@ const gameController = {
     turnCount: 1,
     healthRate: 1,
     upgradeRate: 0,
+    resourceCostTurn: 2,
     
     endTurn(){
         this.checkActions();
@@ -308,14 +340,15 @@ const gameController = {
             }
 
             if(gameStatus.fluOn === true){
-                if(gameStatus.fluCreated === true){
+                if(gameStatus.fluMem === true){
                     gameStatus.fluOn = false;
                     gameStatus.fluAnti = false;
                     gameStatus.eventActive = false;
                     console.log("you defeated the flu with memory cells!")
 
                 } else if(gameStatus.fluAnti === true){
-                    if(gameStatus.fluAntiCount === 0){
+                    if(gameStatus.fluAntiCount === 1){
+                        gameStatus.memCellCreated = true;
                         gameStatus.fluCreated = true;
                         gameStatus.fluAnti = false;
                         gameStatus.fluOn = false;
@@ -331,14 +364,15 @@ const gameController = {
             }
 
             if(gameStatus.bacteriaOn === true){
-                if(gameStatus.bacteriaCreated === true){
+                if(gameStatus.bacMem === true){
                     gameStatus.bacteriaOn = false;
                     gameStatus.bacteriaAnti = false;
                     gameStatus.eventActive = false;
                     console.log("you defeated the bacteria with memory cells!")
 
                 } else if(gameStatus.bacteriaAnti === true){
-                    if(gameStatus.bacteriaAntiCount === 0){
+                    if(gameStatus.bacteriaAntiCount === 1){
+                        gameStatus.memCellCreated = true;
                         gameStatus.bacteriaCreated = true;
                         gameStatus.bacteriaAnti = false;
                         gameStatus.bacteriaOn = false;
@@ -353,14 +387,15 @@ const gameController = {
                 }
             }
             if(gameStatus.parasiteOn === true){
-                if(gameStatus.parasiteCreated === true){
+                if(gameStatus.parasiteMem === true){
                     gameStatus.parasiteOn = false;
                     gameStatus.parasiteAnti = false;
                     gameStatus.eventActive = false;
                     console.log("you defeated the parasite with memory cells!")
 
                 } else if(gameStatus.bacteriaAnti === true){
-                    if(gameStatus.parasiteAntiCount === 0){
+                    if(gameStatus.parasiteAntiCount === 1){
+                        gameStatus.memCellCreated = true;
                         gameStatus.parasiteCreated = true;
                         gameStatus.parasiteAnti = false;
                         gameStatus.parasiteOn = false;
@@ -377,6 +412,9 @@ const gameController = {
 
             const turnThreshold = 10
             const costAddition = Math.floor(this.turnCount/turnThreshold)
+            if(costAddition>=1){
+                this.resourceCostTurn += costAddition
+            }
             const cost = {
                 resource: 2 + costAddition
             }
@@ -907,10 +945,18 @@ const immuSystem = {
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
-        } else if(gameStatus.bacteriaCreated===false || gameStatus.fluCreated === false || gameStatus.parasiteCreated === false){
+        } else if(gameStatus.memCellCreated === false){
             console.log("You can't produce any memory cells yet.")
 
-        } else if(cell === "1"){
+        } else if(cell === 1 && gameController.checkResources(cost,gameVariables)){
+            if(gameStatus.fluCreated === false){
+                DOM.displayMessage.textContent = "You can't produce flu memory cells yet."
+            } else{
+                DOM.displayMessage.textContent = "Flu memory cells produced!";
+                gameStatus.fluMem = true;
+                gameVariables.amino -= cost.amino
+            }
+        } else if(cell === 2 && gameController.checkResources(cost, gameVariables)){
 
         }
     }
