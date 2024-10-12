@@ -15,6 +15,8 @@ const DOM = {
     endoBtnContain: document.querySelector("#endocrine-system-btns"),
     immuneBtnContain:document.querySelector("#immune-system-btns"),
     memCellBtnContain:document.querySelector("#mem-cell-btns"),
+    
+    
     actionDisplay: document.querySelector(".action-display"),
     unOxDisplay: document.querySelector("#oxygen-un"),
     unGluDisplay: document.querySelector("#glucose-un"),
@@ -30,6 +32,8 @@ const DOM = {
     avGluDisplay: document.querySelector(".glucose-av"),
     avProDisplay: document.querySelector(".protein-av"),
     displayMessage: document.querySelector(".message-text"),
+   
+   
     endBtn: document.querySelector("#end-turn"),
     regulateSystemsBtn: document.querySelector("#regulate-systems-btn"),
     regulateImg: document.querySelector("#picture-1"),
@@ -39,19 +43,28 @@ const DOM = {
     sleepBtnTool: document.querySelector("#sleep-btn-tooltip"),
     sweatBtn: document.querySelector("#sweat-btn"),
     sweatBtnTool: document.querySelector("#sweat-btn-tooltip"),
+    sweatImg: document.querySelector("#picture-2"),
+    sweatImgTool: document.querySelector("#sweat-tooltip"),
     getOxBtn: document.querySelector("#get-oxygen"),
     getOxTool: document.querySelector("#get-oxygen-tooltip"),
     breathBtn: document.querySelector("#breathing-btn"),
     breathBtnTool: document.querySelector("#breathing-btn-tooltip"),
     breathImg: document.querySelector("#picture-3"),
     breathImgTool: document.querySelector("#breathing-tooltip"),
+    exerciseLungBtn: document.querySelector("#resp-exercise"),
+    exerciseTool: document.querySelector("#resp-exercise-tooltip"),
+    exerciseImg: document.querySelector("#picture-4"),
+    exerciseImgTool: document.querySelector("#exercise-lungs-tooltip"),
     
-
 
     memCellBtn: document.querySelector("#mem-cell-btn"),
     memCellBackBtn: document.querySelector("#mem-cell-back"),
     fluMemBtn: document.querySelector("#flu-mem-btn"),
     
+
+
+    warnImg: document.querySelector("#picture-15"),
+    WarnImgTool: document.querySelector("#warning-tooltip"),
 
 
 
@@ -153,6 +166,12 @@ DOM.breathBtn.addEventListener("click", function(){
 })
 DOM.breathBtnTool.innerHTML="Increase breathing rate. Adds <b>'Increased Breathing'</b> status. <b>Cost:</b> 2 glucose."
 
+DOM.exerciseLungBtn.addEventListener("click", function(){
+    respSystem.exerciseResp()
+})
+DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>.`
+
+
 DOM.memCellBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "none";
     DOM.memCellBtnContain.style.display = "grid";
@@ -166,6 +185,9 @@ DOM.memCellBackBtn.addEventListener("click", function(){
 DOM.fluMemBtn.addEventListener("click", function(){
     immuSystem.produceMemoryCell(1)
 })
+
+
+
 
 
 const display = {
@@ -187,8 +209,7 @@ const display = {
         DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
         DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`;
 
-        DOM.regulateImgTool.innerHTML= `<b>Regulate Systems:</b> Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`;
-        DOM.breathImgTool.innerHTML = `<b>Increased Breathing:</b> While active, increase <b>potential</b> oxygen by additional 4 when using <b>Get Oxygen</b>. Turns Remaining: ${gameStatus.increaseBreathCount}`
+        
 
     },
 
@@ -582,9 +603,7 @@ events: [
         range: [11,15], 
         situation: ()=>{
             "event 2"
-            gameStatus.overheatOn = true;
-            gameStatus.eventActive = true;
-            console.log("After some intense exercise, the body has overheated!")
+            
         }
     },
     { range: [16,17], 
@@ -723,15 +742,38 @@ const respSystem = {
             glucose: 3 + gameController.upgradeRate,
             amino: 3 + gameController.upgradeRate,
         }
+
         gameController.checkActions();
+        if(gameStatus.exerciseLungs === true){
+            DOM.displayMessage.textContent = "You have already exercised!"
+            return
+        }
+        
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.glucose -= cost.glucose;
             gameVariables.amino -= cost.amino;
             gameVariables.actions -= 1;
             gameVariables.co2 += 3;
             gameStatus.exerciseLungs = true;
+            DOM.displayMessage.textContent = "The respiratory system is strengthened after exercise!";
+            DOM.exerciseImg.style.display = "block";
+            display.updateDisplay();
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.actionDisplay);
+            display.turnGreen(DOM.co2Display);
+            if(gameStatus.eventActive === false){
+                let randomNumber = Math.floor(Math.random() * 2) + 1;
+                if(randomNumber === 1){
+                    gameStatus.eventActive = true;
+                    gameStatus.overheatOn = true;
+                    DOM.warnImg.style.display = "block";
+
+                }
+            }
 
         }
     }
@@ -921,11 +963,16 @@ const nervSystem = {
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.sweatOn = true;
             gameVariables.actions -= 1;
-            gameVariables.water -= cost.water
+            gameVariables.water -= cost.water;
+            DOM.sweatImg.style.display = "block"
+            display.updateDisplay();
+            display.turnRed(DOM.actionDisplay);
+            display.turnRed(DOM.avWatDisplay);
 
         }
     },
@@ -937,23 +984,29 @@ const nervSystem = {
             glucose: 3,
             oxygen: 3
         }
+
+        if(gameVariables.health/gameVariables.maxHealth === 1){
+            DOM.displayMessage.textContent = "Health is already full!";
+            return;
+        }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameStatus.melatoninOn === true && gameController.checkResources(cost,gameVariables)){
             gameStatus.melatoninOn = false;
-            gameVariables.amino-=3;
-            gameVariables.water-=3;
-            gameVariables.glucose-=3;
-            gameVariables.oxygen-=3;
-            gameVariables.health+=2;
+            gameVariables.amino-=cost.amino;
+            gameVariables.water-=cost.water;
+            gameVariables.glucose-=cost.glucose;
+            gameVariables.oxygen-=cost.oxygen;
+            gameVariables.health = Math.min(gameVariables.health+2,gameVariables.maxHealth);
             gameVariables.actions-=1
         } else if(gameController.checkResources(cost, gameVariables)){
-            gameVariables.amino-=3;
-            gameVariables.water-=3;
-            gameVariables.glucose-=3;
-            gameVariables.oxygen-=3;
-            gameVariables.health+=1;
+            gameVariables.amino-=cost.amino;
+            gameVariables.water-=cost.water;
+            gameVariables.glucose-=cost.glucose;
+            gameVariables.oxygen-=cost.oxygen;
+            gameVariables.health = Math.min(gameVariables.health+1,gameVariables.maxHealth);
             gameVariables.actions-=1
         }
     }
@@ -1050,4 +1103,15 @@ const upgrades = {
 
 
 display.updateDisplay();
+DOM.regulateImgTool.innerHTML= `<b>Regulate Systems:</b> Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`;
+DOM.breathImgTool.innerHTML = `<b>Increased Breathing:</b> While active, increase <b>potential</b> oxygen by additional 4 when using <b>Get Oxygen</b>. Turns Remaining: ${gameStatus.increaseBreathCount}`;
+DOM.sweatImgTool.innerHTML = `<b>Sweating:</b> Can help lower body temperature when overheated. Turns Remaining: ${gameStatus.sweatOnCount}`
+DOM.exerciseImgTool.innerHTML = `<b>Exercise Respiratory System:</b> Exercise has made the repiratory system more efficient!`
+
+
+DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
+
+
+
+
 
