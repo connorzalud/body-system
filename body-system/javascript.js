@@ -55,6 +55,8 @@ const DOM = {
     exerciseTool: document.querySelector("#resp-exercise-tooltip"),
     exerciseImg: document.querySelector("#picture-4"),
     exerciseImgTool: document.querySelector("#exercise-lungs-tooltip"),
+    releaseCO2Btn: document.querySelector("#release-co2"),
+    releaseCO2Tool: document.querySelector("#release-co2-tooltip"),
     
 
     memCellBtn: document.querySelector("#mem-cell-btn"),
@@ -169,8 +171,12 @@ DOM.breathBtnTool.innerHTML="Increase breathing rate. Adds <b>'Increased Breathi
 DOM.exerciseLungBtn.addEventListener("click", function(){
     respSystem.exerciseResp()
 })
-DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>.`
+DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> 3 glucose`
 
+DOM.releaseCO2Btn.addEventListener("click", function(){
+    respSystem.releaseCO2()
+})
+DOM.releaseCO2Tool.innerHTML = `Releases all carbon dioxide in the body. <b>Cost:</b> 2 glucose, 2 amino acids and 2 water`
 
 DOM.memCellBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "none";
@@ -322,7 +328,7 @@ const gameController = {
     noActions: false,
     turnCount: 1,
     healthRate: 1,
-    upgradeRate: 0,
+    upgradeRate: 2,
     resourceCostTurn: 2,
     
     endTurn(){
@@ -493,7 +499,7 @@ const gameController = {
             } else {
                 gameStatus.regulateOnCount -= 1
             }
-           /* let conditionsMet = 0
+            let conditionsMet = 0
             const condition1 = gameVariables.oxygen === 0;
             const condition2 = gameVariables.water === 0;
             const condition3 = gameVariables.amino === 0;
@@ -509,12 +515,12 @@ const gameController = {
                 conditionsMet++
             }
             if(condition4){
-                conditionsMet++
+                conditionsMet+= Math.floor(gameVariables.co2/10)
             }
             if(condition5){
                 conditionsMet++
             }
-            gameVariables.health = Math.max(0,gameVariables.oxygen -= conditionsMet);*/
+            gameVariables.health = Math.max(0,gameVariables.health -= conditionsMet);
             console.log(gameVariables);
             console.log(gameController);
             display.updateDisplay()
@@ -726,13 +732,21 @@ const respSystem = {
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionDisplay
         } else if(gameController.checkResources(cost,gameVariables)){
-            gameVariables.co2 -= 10;
-            gameVariables.glucose -= 2;
-            gameVariables.amino -=2;
-            gameVariables.water -=2;
-            gameVariables.actions -=1
+            gameVariables.co2 = Math.max(0,gameVariables.co2 - 10);
+            gameVariables.glucose -= cost.glucose;
+            gameVariables.amino -=cost.amino;
+            gameVariables.water -=cost.water;
+            gameVariables.actions -=1;
+            DOM.displayMessage.textContent = "Carbon dioxide has been released from the body!"
+            display.updateDisplay();
+            display.turnRed(DOM.co2Display);
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avWatDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
     },
 
@@ -742,6 +756,8 @@ const respSystem = {
             glucose: 3 + gameController.upgradeRate,
             amino: 3 + gameController.upgradeRate,
         }
+
+        console.log(cost)
 
         gameController.checkActions();
         if(gameStatus.exerciseLungs === true){
@@ -978,8 +994,13 @@ const nervSystem = {
     },
 
     goSleep(){
+        let costAddition = 0;
+        if(gameStatus.troubleSleep === true){
+            costAddition = 3;
+        } 
+
         const cost = {
-            amino: 3,
+            amino: 3 + costAddition,
             water: 3,
             glucose: 3,
             oxygen: 3
@@ -1080,7 +1101,9 @@ const immuSystem = {
 
 const upgrades = {
     get respGluCost() {
-        return 3 + gameController.upgradeRate
+        return {
+            glucose: 3 + gameController.upgradeRate
+        }
     },
     upgradeHealth(){
         gameController.checkActions();
@@ -1089,9 +1112,8 @@ const upgrades = {
         } else if(gameStatus.exerciseHeart === true && gameStatus.exerciseLungs === true){
             gameVariables.maxHealth += 5;
             gameController.upgradeRate += 2;
-            DOM.regulateTool.innerHTML = `Cost is <span id="test-span"></span>`
-            DOM.testSpan = document.querySelector("#test-span")
-            DOM.testSpan.textContent = `${this.respGluCost} glucose`
+            let statusMessage = 3 + gameController.upgradeRate;
+            DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> ${statusMessage} glucose`
         } else {
             console.log("have not met conditions")
         }
