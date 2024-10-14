@@ -432,3 +432,14 @@
 .upgrade-buttons{
     display:none
 }
+
+
+@keyframes flash {
+    0% { opacity: 1; }      /* Fully visible at the start */
+    50% { opacity: 0.5; }   /* Dim at the halfway point */
+    100% { opacity: 1; }    /* Fully visible at the end */
+  }
+
+  .flash-effect {
+    animation: flash 1s ease-in-out infinite; /* Flash effect */
+  }
