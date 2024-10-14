@@ -23,13 +23,18 @@ const DOM = {
     unAminoDisplay: document.querySelector("#amino-un"),
     unWaterDisplay: document.querySelector("#water-un"),
     healthDisplay: document.querySelector(".health-display"),
+    healthDisplayTool: document.querySelector("#health-tooltip"),
     turnDisplay: document.querySelector(".turn-display"),
     co2Display: document.querySelector(".co2-display"),
     avOxDisplay: document.querySelector(".oxygen-av"),
+    avOxTool: document.querySelector("#av-ox-tooltip"),
     avAmiDisplay: document.querySelector(".amino-av"),
+    avAmiTool: document.querySelector("#av-ami-tooltip"),
     avWatDisplay: document.querySelector(".water-av"),
+    avWatTool: document.querySelector("#av-water-tooltip"),
     avCarbDisplay: document.querySelector(".carbs-av"),
     avGluDisplay: document.querySelector(".glucose-av"),
+    avGluTool: document.querySelector("#av-glu-tooltip"),
     avProDisplay: document.querySelector(".protein-av"),
     displayMessage: document.querySelector(".message-text"),
    
@@ -75,6 +80,10 @@ const DOM = {
     insulinTool:document.querySelector("#insulin-tooltip"),
     insulinImg:document.querySelector("#picture-9"),
     insulinImgTool:document.querySelector("#insulin-img-tooltip"),
+    adrenBtn: document.querySelector("#adren-btn"),
+    adrenTool: document.querySelector("#adren-tooltip"),
+    adrenImg: document.querySelector("#picture-8"),
+    adrenImgTool: document.querySelector("#adrenaline-img-tooltip"),
 
     
 
@@ -92,6 +101,9 @@ const DOM = {
     eventDisplay: document.querySelector("#event-text"),
     resolveBtn: document.querySelector("#resolve-button"),
     resolveTool: document.querySelector("#resolve-tooltip")
+
+
+
 
 
     
@@ -194,7 +206,7 @@ DOM.breathBtnTool.innerHTML="Increase breathing rate. Adds <b>'Increased Breathi
 DOM.exerciseLungBtn.addEventListener("click", function(){
     respSystem.exerciseResp()
 })
-DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> -3 glucose, +3 carbon dioxide`
+DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> -3 glucose, -3 amino acids, -3 oxygen, +3 carbon dioxide`
 
 DOM.releaseCO2Btn.addEventListener("click", function(){
     respSystem.releaseCO2()
@@ -211,7 +223,7 @@ DOM.transportTool.innerHTML = `Transports nutrients through the blood. Move all 
 DOM.increaseHeartBtn.addEventListener("click", function(){
     circSystem.increaseHeart()
 })
-DOM.increaseHeartTool.innerHTML = `Heart rate increases. Adds <b>Increased Heart Rate</b> status. <b>Cost:</b> -2 glucose, +2 carbon dioxide`
+DOM.increaseHeartTool.innerHTML = `Heart rate increases. Adds <b>Increased Heart Rate</b> status. <b>Cost:</b> -2 glucose, -1 oxygen, +2 carbon dioxide`
 
 DOM.exerciseHeartBtn.addEventListener("click", function(){
     circSystem.exerciseCirc()
@@ -235,7 +247,12 @@ DOM.breakTool.innerHTML = `Breaks down large nutrients. Double the number of car
 DOM.insulinBtn.addEventListener("click", function (){
     endoSystem.produceIns()
 })
-DOM.insulinTool.innerHTML = `Produces insulin. Adds <b>Insulin</b> status. <b>Cost: -1 glucose, -3 amino acids.</b>`
+DOM.insulinTool.innerHTML = `Produces insulin. Adds <b>Insulin</b> status. <b>Cost:</b> -1 glucose, -3 amino acids.`
+
+DOM.adrenBtn.addEventListener("click", function(){
+    endoSystem.produceAdr()
+})
+DOM.adrenTool.innerHTML = `Produces adrenaline. Adds <b>Adrenaline</b> status. <b>Cost:</b> -1 glucose, -3 amino acids.`
 
 
 DOM.memCellBtn.addEventListener("click", function(){
@@ -275,14 +292,19 @@ const display = {
         DOM.unGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.pglucose}`;
         DOM.unWaterDisplay.innerHTML = `<b>Water</b>: ${gameVariables.pwater}`;
         DOM.avWatDisplay.innerHTML = `<b>Water</b>: ${gameVariables.water}`;
+        DOM.avWatTool.innerHTML = `<b>Cost per turn:</b> ${gameController.waterCost}`
         DOM.avOxDisplay.innerHTML = `<b>Oxygen</b>: ${gameVariables.oxygen}`;
+        DOM.avOxTool.innerHTML = `<b>Cost per turn:</b> ${gameController.oxygenCost}`
         DOM.avAmiDisplay.innerHTML = `<b>Amino Acids</b>: ${gameVariables.amino}`;
+        DOM.avAmiTool.innerHTML = `<b>Cost per turn:</b> ${gameController.aminoCost}`
         DOM.avCarbDisplay.innerHTML = `<b>Carbs</b>: ${gameVariables.carbs}`;
         DOM.avGluDisplay.innerHTML = `<b>Glucose</b>: ${gameVariables.glucose}`;
+        DOM.avGluTool.innerHTML = `<b>Cost per turn:</b> ${gameController.glucoseCost}`
         DOM.avWatDisplay.innerHTML = `<b>Water</b>: ${gameVariables.water}`;
         DOM.avProDisplay.innerHTML = `<b>Protein</b>: ${gameVariables.protein}`;
         DOM.turnDisplay.innerHTML= `<b>Turn:</b> ${gameController.turnCount}`
         DOM.healthDisplay.innerHTML=`<b>Health:</b> ${gameVariables.health}/${gameVariables.maxHealth}`;
+        DOM.healthDisplayTool.innerHTML = `<b>Health loss per turn:</b> ${gameController.healthRate}`
         DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`;
 
         
@@ -443,6 +465,10 @@ const gameController = {
     healthRate: 1,
     upgradeRate: 2,
     resourceCostTurn: 2,
+    oxygenCost: 4,
+    waterCost: 3,
+    glucoseCost: 2,
+    aminoCost:2,
     
     endTurn(){
         this.checkActions();
@@ -507,6 +533,7 @@ const gameController = {
                 if(gameStatus.adrenCount === 0){
                     gameStatus.adrenCount = 2;
                     gameStatus.adrenOn = false;
+                    DOM.adrenImg.style.display = "none"
                 } else{
                     gameStatus.adrenCount -= 1;
                     gameVariables.oxygen += 4
@@ -602,12 +629,16 @@ const gameController = {
                 this.resourceCostTurn += costAddition
             }
             const cost = {
-                resource: 2 + costAddition
+                resource: 2 + costAddition,
+                oxygen: 4 + costAddition,
+                water: 3 + costAddition,
+                glucose: 2 + costAddition,
+                amino: 2 + costAddition,
             }
-            gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= cost.resource);
-            gameVariables.water = Math.max(0,gameVariables.water -= cost.resource);
-            gameVariables.glucose = Math.max(0,gameVariables.glucose -= cost.resource);
-            gameVariables.amino = Math.max(0,gameVariables.amino -= cost.resource)
+            gameVariables.oxygen = Math.max(0,gameVariables.oxygen -= cost.oxygen);
+            gameVariables.water = Math.max(0,gameVariables.water -= cost.water);
+            gameVariables.glucose = Math.max(0,gameVariables.glucose -= cost.glucose);
+            gameVariables.amino = Math.max(0,gameVariables.amino -= cost.amino)
             if(!gameStatus.regulateOn){
                     gameVariables.health = Math.max(0,gameVariables.health -= this.healthRate);
             } else if(gameStatus.regulateOnCount === 1){
@@ -873,6 +904,7 @@ const respSystem = {
         const cost = {
             glucose: 3 + gameController.upgradeRate,
             amino: 3 + gameController.upgradeRate,
+            oxygen: 3 + gameController.upgradeRate
         }
 
         console.log(cost)
@@ -889,6 +921,7 @@ const respSystem = {
         } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.glucose -= cost.glucose;
             gameVariables.amino -= cost.amino;
+            gameVariables.oxygen -= cost.oxygen;
             gameVariables.actions -= 1;
             gameVariables.co2 += 3;
             gameStatus.exerciseLungs = true;
@@ -897,6 +930,7 @@ const respSystem = {
             display.updateDisplay();
             display.turnRed(DOM.avGluDisplay);
             display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avOxDisplay);
             display.turnRed(DOM.actionDisplay);
             display.turnGreen(DOM.co2Display);
             if(gameStatus.eventActive === false){
@@ -972,7 +1006,8 @@ const circSystem = {
 
     increaseHeart(){
         let cost = {
-            glucose: 2
+            glucose: 2,
+            oxygen: 1,
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
@@ -984,6 +1019,7 @@ const circSystem = {
         } else if(gameController.checkResources(cost,gameVariables)){
             gameStatus.increaseHeart = true;
             gameVariables.glucose -=cost.glucose;
+            gameVariables.oxygen -= cost.oxygen;
             gameVariables.co2 += 2;
             gameVariables.actions -= 1;
             DOM.displayMessage.textContent = 'Heart rate has been increased!'
@@ -991,6 +1027,7 @@ const circSystem = {
             display.updateDisplay();
             display.turnRed(DOM.avGluDisplay);
             display.turnRed(DOM.actionDisplay);
+            display.turnRed(DOM.avOxDisplay);
             display.turnGreen(DOM.co2Display);
             
         }
@@ -1131,12 +1168,19 @@ const endoSystem = {
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions")
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost, gameVariables)) {
             gameVariables.actions -= 1;
-            gameVariables.amino -= 3;
-            gameVariables.glucose -= 1;
+            gameVariables.amino -= cost.amino;
+            gameVariables.glucose -= cost.glucose;
             gameStatus.adrenOn = true;
             console.log("Adrenaline produced!")
+            DOM.displayMessage.textContent = "The body has produced adrenaline!"
+            DOM.adrenImg.style.display = "grid";
+            display.updateDisplay();
+            display.turnRed(DOM.actionDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avGluDisplay);
         }
     },
 
@@ -1356,8 +1400,8 @@ DOM.sweatImgTool.innerHTML = `<b>Sweating:</b> Can help lower body temperature w
 DOM.exerciseImgTool.innerHTML = `<b>Exercise Respiratory System:</b> Exercise has made the repiratory system more efficient!`
 DOM.increaseHeartImgTool.innerHTML= `<b>Increased Heart Rate:</b> While active, carbon dioxide gain is reduced to 2 when using <b>Transport Nutrients</b>. Turns Remaining: ${gameStatus.increaseHeartCount}`
 DOM.exerciseHeartImgTool.innerHTML = `<b>Exercise Circulatory System:</b> Exercise has made the circulatory system more efficient!`
-DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4. Turns Remaining: ${gameStatus.insCount}`;
-
+DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4 at the end of the turn. Turns Remaining: ${gameStatus.insCount}`;
+DOM.adrenImgTool.innerHTML = `<b>Adrenaline:</b> While active, increase <b>available</b> oxygen by 4 at the end of the turn. Turns Remaining: ${gameStatus.adrenCount}`
 
 
 DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
