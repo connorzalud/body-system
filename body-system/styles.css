@@ -140,7 +140,7 @@
 
 .div-wrapper .tooltip {
     visibility: hidden;
-    width: 100px; /* Adjust width as needed */
+    width: 260px; /* Adjust width as needed */
     background-color: lightblue;
     color: black;
     text-align: center;
@@ -174,7 +174,7 @@
 
 .div-wrapper{
     position: relative;
-    display:flex;
+    
     justify-content: center;
     align-items: center;
 }
