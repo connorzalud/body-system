@@ -67,6 +67,14 @@ const DOM = {
     exerciseHeartTool: document.querySelector("#exercise-heart-tooltip"),
     exerciseHeartImg: document.querySelector("#picture-6"),
     exerciseHeartImgTool: document.querySelector("#heart-exercise-tooltip"),
+    breakBtn: document.querySelector("#break-btn"),
+    breakTool: document.querySelector("#break-tooltip"),
+    getNutrientsBtn: document.querySelector("#nutrients-btn"),
+    getNutrientsTool: document.querySelector("#nutrients-tooltip"),
+    insulinBtn:document.querySelector("#insulin-btn"),
+    insulinTool:document.querySelector("#insulin-tooltip"),
+    insulinImg:document.querySelector("#picture-9"),
+    insulinImgTool:document.querySelector("#insulin-img-tooltip"),
 
     
 
@@ -211,6 +219,25 @@ DOM.exerciseHeartBtn.addEventListener("click", function(){
 DOM.exerciseHeartTool.innerHTML = `Adds <b>Exercise Circulatory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> -2 glucose, +2 carbon dioxide`
 
 
+//digestive system buttons
+DOM.getNutrientsBtn.addEventListener("click", function(){
+    digestSystem.getNutrients()
+})
+DOM.getNutrientsTool.innerHTML = `Bring nutrients into the body. Increase <b>potential</b> water by 3, carbs by 2 and protein by 2. <b>Cost:</b> -1 glucose, -1, amino acids, +2 carbon dioxide.`
+
+DOM.breakBtn.addEventListener("click", function(){
+    digestSystem.digestNutrients()
+})
+DOM.breakTool.innerHTML = `Breaks down large nutrients. Double the number of carbs and proteins and adds that amount to <b>potential</b> glucose and amino acids. Set carbs and protein to 0. <b>Cost:</b> -1 glucose, -2 amino acids, +3 carbon dioxide`
+
+
+//endocrine system buttons
+DOM.insulinBtn.addEventListener("click", function (){
+    endoSystem.produceIns()
+})
+DOM.insulinTool.innerHTML = `Produces insulin. Adds <b>Insulin</b> status. <b>Cost: -1 glucose, -3 amino acids.</b>`
+
+
 DOM.memCellBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "none";
     DOM.memCellBtnContain.style.display = "grid";
@@ -229,12 +256,15 @@ DOM.fluMemBtn.addEventListener("click", function(){
 //status effects
 
 DOM.warnImg.addEventListener("click", function(){
-    DOM.resolveBtn.onclick = function(){
-        gameStatus.clearStatus2("overheat");
-    }
+    gameStatus.currentStatus = "overheat"
     DOM.resolveTool.innerHTML = "test test test"
     DOM.eventDisplay.textContent = "also a test"
 })
+
+
+DOM.resolveBtn.onclick = function (){
+    gameStatus.clearStatus2(gameStatus.currentStatus);
+}
 
 const display = {
 
@@ -263,14 +293,22 @@ const display = {
         div.style.color = "red"
         setTimeout(function(){
             div.style.color = "";
-        },900)
+        },1200)
     },
 
     turnGreen(div){
         div.style.color = "green"
         setTimeout(function(){
             div.style.color = "";
-        },900)
+        },1200)
+    },
+
+    flashImg(img){
+        img.classList.add('flash-effect');
+
+        setTimeout(function(){
+            img.classList.remove('flash-effect')
+        }, 3000)
     }
 
 }
@@ -278,7 +316,10 @@ const display = {
 
 
   const gameStatus = {
+    testCondition:false,
+
     eventActive: false,
+    currentStatus: null,
     regulateOn: false,
     regulateOnCount: 3,
     overheatOn: false,
@@ -363,21 +404,38 @@ const display = {
         }
     },
 
-    setResolve(action){
-        DOM.resolveBtn.onclick = action
-    },
+
+    
 
     clearStatus2(status){
         gameController.checkActions();
         if(gameVariables.actions === 0){
             DOM.displayMessage.textContent = DOM.actionMessage
-        } else if(status === "overheat"){
-            DOM.eventDisplay.textContent = "test overheat";
+        } else if(status === null){
+            DOM.eventDisplay.textContent = "no event selected";
+        } else if(statusHandler[status]){
+            statusHandler[status]();
             DOM.resolveTool.innerHTML = "No event selected";
-            DOM.resolveBtn.onclick = null
+            
         }
     }
   }
+
+
+const statusHandler = {
+    overheat: function() {
+
+        if(gameStatus.testCondition){
+            DOM.eventDisplay.textContent = "Overheat status resolved!";
+            gameStatus.currentStatus = null
+        } else{
+            DOM.eventDisplay.textContent = "Do not meet conditions"
+        }
+        
+        
+        
+    }
+}
 
 const gameController = {
     noActions: false,
@@ -460,6 +518,7 @@ const gameController = {
                 if(gameStatus.insCount === 0){
                     gameStatus.insCount = 2;
                     gameStatus.insuOn = false
+                    DOM.insulinImg.style.display = "none"
                 } else{
                     gameStatus.insCount -= 1;
                     gameVariables.glucose += 4
@@ -985,21 +1044,31 @@ const circSystem = {
 
 const digestSystem = {
     getNutrients(){
-        let cost = {
+        const cost = {
             amino: 1,
             glucose: 1
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.actions -=1;
             gameVariables.pwater +=3;
             gameVariables.carbs += 2;
             gameVariables.protein += 2;
             gameVariables.co2 += 2;
-            gameVariables.amino -=1;
-            gameVariables.glucose -=1;
+            gameVariables.amino -=cost.amino;
+            gameVariables.glucose -=cost.glucose;
+            DOM.displayMessage.textContent = "Nutrients have entered the body!"
+            display.updateDisplay();
+            display.turnGreen(DOM.avCarbDisplay);
+            display.turnGreen(DOM.unWaterDisplay);
+            display.turnGreen(DOM.avProDisplay);
+            display.turnGreen(DOM.co2Display);
+            display.turnRed(DOM.actionDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avGluDisplay);
 
         }
     },
@@ -1011,7 +1080,8 @@ const digestSystem = {
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.actions -=1;
             gameVariables.pamino = gameVariables.protein*2 + gameVariables.pamino;
@@ -1019,8 +1089,17 @@ const digestSystem = {
             gameVariables.carbs = 0;
             gameVariables.protein = 0;
             gameVariables.co2 += 3;
-            gameVariables.amino -=2;
-            gameVariables.glucose -=1;
+            gameVariables.amino -=cost.amino;
+            gameVariables.glucose -=cost.glucose;
+            DOM.displayMessage.textContent = "Nutrients have been digested!";
+            display.updateDisplay();
+            display.turnGreen(DOM.unAminoDisplay);
+            display.turnGreen(DOM.unGluDisplay);
+            display.turnRed(DOM.avCarbDisplay);
+            display.turnRed(DOM.avProDisplay);
+            display.turnGreen(DOM.co2Display);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avGluDisplay);
 
         }
     }
@@ -1068,13 +1147,21 @@ const endoSystem = {
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.actions -= 1;
-            gameVariables.amino -= 3;
-            gameVariables.glucose -= 1;
+            gameVariables.amino -= cost.amino;
+            gameVariables.glucose -= cost.glucose;
             gameStatus.insuOn = true;
             console.log("Insulin produced!")
+            DOM.displayMessage.textContent = "The body has produced insulin!";
+            DOM.insulinImg.style.display = "grid";
+            display.updateDisplay();
+            display.turnRed(DOM.actionDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avGluDisplay);
+
         }
     },
 }
@@ -1269,6 +1356,8 @@ DOM.sweatImgTool.innerHTML = `<b>Sweating:</b> Can help lower body temperature w
 DOM.exerciseImgTool.innerHTML = `<b>Exercise Respiratory System:</b> Exercise has made the repiratory system more efficient!`
 DOM.increaseHeartImgTool.innerHTML= `<b>Increased Heart Rate:</b> While active, carbon dioxide gain is reduced to 2 when using <b>Transport Nutrients</b>. Turns Remaining: ${gameStatus.increaseHeartCount}`
 DOM.exerciseHeartImgTool.innerHTML = `<b>Exercise Circulatory System:</b> Exercise has made the circulatory system more efficient!`
+DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4. Turns Remaining: ${gameStatus.insCount}`;
+
 
 
 DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
