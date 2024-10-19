@@ -237,6 +237,15 @@
 #picture-15{
     display:none
 }
+#picture-16{
+    display:none
+}
+#picture-17{
+    display:none
+}
+#picture-18{
+    display:none
+}
 
 .body-system-btns-container{
     grid-column: 1/2;
@@ -427,6 +436,10 @@
     width: fit-content;
     justify-self: center;
     align-self: center;
+}
+
+#resolve-container{
+    justify-self: center;
 }
 
 .upgrade-buttons{
