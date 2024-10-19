@@ -86,14 +86,39 @@ const DOM = {
     adrenImgTool: document.querySelector("#adrenaline-img-tooltip"),
     melaBtn: document.querySelector("#mela-btn"),
     melaTool: document.querySelector("#mela-tooltip"),
-    melaImg: document.querySelector("#picture7"),
+    melaImg: document.querySelector("#picture-7"),
     melaImgTool: document.querySelector("#melatonin-img-tooltip"),
+    fluBtn: document.querySelector("#flu-btn"),
+    fluBtnTool: document.querySelector("#flu-btn-tooltip"),
+    fluImg: document.querySelector("#picture-10"),
+    fluImgTool: document.querySelector("#flu-antibody-tooltip"),
+    bacBtn: document.querySelector("#bac-btn"),
+    bacBtnTool: document.querySelector("#bac-btn-tooltip"),
+    bacImg: document.querySelector("#picture-11"),
+    bacImgTool: document.querySelector("#bacteria-antibody-tooltip"),
+    parabtn: document.querySelector("#para-btn"),
+    parabtnTool: document.querySelector("#para-btn-tooltip"),
+    paraImg: document.querySelector("#picture-12"),
+    paraImgTool: document.querySelector("#parasite-antibody-tooltip"),
+    
 
     
 
     memCellBtn: document.querySelector("#mem-cell-btn"),
     memCellBackBtn: document.querySelector("#mem-cell-back"),
     fluMemBtn: document.querySelector("#flu-mem-btn"),
+    fluMemTool: document.querySelector("#flu-mem-btn-tooltip"),
+    fluMemImg: document.querySelector("#picture-17"),
+    fluMemImgTool: document.querySelector("#flu-mem-tooltip"),
+    bacMemBtn: document.querySelector("#bac-mem-btn"),
+    bacMemBtnTool: document.querySelector("#bac-mem-btn-tooltip"),
+    bacMemImg: document.querySelector("#picture-18"),
+    bacMemImgTool: document.querySelector("#bac-mem-tooltip"),
+    paraMemBtn: document.querySelector("#para-mem-btn"),
+    paraMemBtnTool: document.querySelector("#para-mem-btn-tooltip"),
+    paraMemImg: document.querySelector("#picture-16"),
+    paraMemImgTool: document.querySelector("#para-mem-tooltip"),
+
     
 
 
@@ -261,6 +286,26 @@ DOM.adrenTool.innerHTML = `Produces adrenaline. Adds <b>Adrenaline</b> status. <
 DOM.melaBtn.addEventListener("click", function(){
     endoSystem.produceMel()
 })
+DOM.melaTool.innerHTML = `Produces melatonin. Adds <b>Melatonin</b> status. <b>Cost:</b> -1 glucose, -3 amino acids.`
+
+
+
+//immune system buttons
+
+DOM.fluBtn.addEventListener("click", function(){
+    immuSystem.produceFlu()
+})
+DOM.fluBtnTool.innerHTML = `Produce flu antibodies. Adds <b>Flu Antibodies</b> status. <b>Cost:</b> -2 amino acids`
+
+DOM.bacBtn.addEventListener("click", function(){
+    immuSystem.produceBacteria()
+})
+DOM.bacBtnTool.innerHTML= `Produce bacteria antibodies. Adds <b>Bacteria Antibodies</b> status. <b>Cost:</b> -2 amino acids`
+
+DOM.parabtn.addEventListener("click", function(){
+    immuSystem.produceParasite()
+})
+DOM.parabtnTool.innerHTML = `Produce parasite antibodies. Adds <b>Parasite Antibodies</b> status. <b>Cost:</b> -2 amino acids`
 
 
 DOM.memCellBtn.addEventListener("click", function(){
@@ -276,7 +321,17 @@ DOM.memCellBackBtn.addEventListener("click", function(){
 DOM.fluMemBtn.addEventListener("click", function(){
     immuSystem.produceMemoryCell(1)
 })
+DOM.fluMemTool.innerHTML = `Produce flu memory cells. Adds <b>Flu Memory Cells</b> status. <b>Cost: 2 amino acids</b>`
 
+DOM.bacMemBtn.addEventListener("click", function(){
+    immuSystem.produceMemoryCell(2)
+})
+DOM.bacMemBtnTool.innerHTML = `Produce bacteria memory cells. Adds <b>Bacteria Memory Cells</b> status. <b>Cost: 2 amino acids</b>`
+
+DOM.paraMemBtn.addEventListener("click", function(){
+    immuSystem.produceMemoryCell(3)
+})
+DOM.paraMemBtnTool.innerHTML = `Produce parasite memory cells. Adds <b>Parasite Memory Cells</b> status. <b>Cost: 2 amino acids</b>`
 
 //status effects
 
@@ -323,6 +378,13 @@ const display = {
         DOM.exerciseHeartImgTool.innerHTML = `<b>Exercise Circulatory System:</b> Exercise has made the circulatory system more efficient!`
         DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4 at the end of the turn. Turns Remaining: ${gameStatus.insCount}`;
         DOM.adrenImgTool.innerHTML = `<b>Adrenaline:</b> While active, increase <b>available</b> oxygen by 4 at the end of the turn. Turns Remaining: ${gameStatus.adrenCount}`
+        DOM.melaImgTool.innerHTML = `<b>Melatonin:</b> While active, restore one additional point of health when using <b>Sleep</b>. Remains active until used.`
+        DOM.fluImgTool.innerHTML = `<b>Flu Antibodies:</b> Produces antibodies which can defeat the flu. Takes time to work. Turns Remaining: ${gameStatus.fluAntiCount}`
+        DOM.bacImgTool.innerHTML= `<b>Bacteria Antibodies:</b> Produces antibodies which can defeat bacteria. Takes time to work. Turns Remaining: ${gameStatus.bacteriaAntiCount}`
+        DOM.paraImgTool.innerHTML = `<b>Parasite Antibodies:</b> Produces antibodies which can defeat parasites. Takes time to work. Turns Remaining: ${gameStatus.parasiteAntiCount}`
+        DOM.fluMemImgTool.innerHTML = `<b>Flu Memory Cells:</b> While active, defeats the flu. Remains active until used.`
+        DOM.bacMemImgTool.innerHTML = `<b>Bacteria Memory Cells:</b> While active, defeats bacteria. Remains active until used.`
+        DOM.paraMemImgTool.innerHTML =  `<b>Parasite Memory Cells:</b> While active, defeats parasite. Remains active until used.`
 
 
         DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
@@ -1199,13 +1261,22 @@ const endoSystem = {
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if (gameStatus.melatoninOn === true){
+            DOM.displayMessage.textContent = "Melatonin has already been produced!"
         } else if(gameController.checkResources(cost, gameVariables)) {
             gameVariables.actions -= 1;
-            gameVariables.amino -= 3;
-            gameVariables.glucose -= 1;
+            gameVariables.amino -= cost.amino;
+            gameVariables.glucose -= cost.glucose;
             gameStatus.melatoninOn = true;
-            console.log("Melatonin produced!")
+            console.log("Melatonin produced!");
+            DOM.displayMessage.textContent = "The body has produced melatonin!"
+            DOM.melaImg.style.display = "grid";
+            display.updateDisplay();
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
     },
 
@@ -1218,6 +1289,8 @@ const endoSystem = {
         if(gameVariables.actions === 0){
             console.log("out of actions")
             DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.adrenOn === true){
+            DOM.displayMessage.textContent = "Adrenaline has already been produced!"
         } else if(gameController.checkResources(cost, gameVariables)) {
             gameVariables.actions -= 1;
             gameVariables.amino -= cost.amino;
@@ -1242,6 +1315,8 @@ const endoSystem = {
         if(gameVariables.actions === 0){
             console.log("out of actions");
             DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.insuOn === true){
+            DOM.displayMessage.textContent = "Insuline has already been produced!"
         } else if(gameController.checkResources(cost, gameVariables)){
             gameVariables.actions -= 1;
             gameVariables.amino -= cost.amino;
@@ -1353,16 +1428,26 @@ const nervSystem = {
 
 const immuSystem = {
     produceBacteria(){
-       const cost = {
+        const cost = {
             amino: 2
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.bacteriaOn === false){
+            DOM.displayMessage.textContent = `You can't produce bacteria antibodies right now!`
+        } else if(gameStatus.bacteriaAnti === true){
+            DOM.displayMessage.textContent = "Bacteria antibodies already produced!"
         } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.bacteriaAnti = true;
-            gameVariables.amino-=2
+            gameVariables.amino-=cost.amino
             gameVariables.actions -=1;
+            DOM.displayMessage.textContent = "Bacteria antibodies have been produced!";
+            DOM.bacImg.style.display = "grid"
+            display.updateDisplay();
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
     },
     produceFlu(){
@@ -1371,11 +1456,21 @@ const immuSystem = {
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.fluOn === false){
+            DOM.displayMessage.textContent = `You can't produce flu antibodies right now!`
+        } else if(gameStatus.fluAnti === true){
+            DOM.displayMessage.textContent = "Flu antibodies already produced!"
         } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.fluAnti = true;
-            gameVariables.amino-=2
+            gameVariables.amino-=cost.amino
             gameVariables.actions -=1;
+            DOM.displayMessage.textContent = "Flu antibodies have been produced!";
+            DOM.fluImg.style.display = "grid"
+            display.updateDisplay();
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
     },
     produceParasite(){
@@ -1384,11 +1479,21 @@ const immuSystem = {
         }
         gameController.checkActions()
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.parasiteOn === false){
+            DOM.displayMessage.textContent = `You can't produce parasite antibodies right now!`
+        } else if(gameStatus.parasiteAnti === true){
+            DOM.displayMessage.textContent = "Flu antibodies already produced!"
         } else if(gameController.checkResources(cost, gameVariables)){
             gameStatus.parasiteAnti = true;
-            gameVariables.amino-=2
+            gameVariables.amino-=cost.amino
             gameVariables.actions -=1;
+            DOM.displayMessage.textContent = "Parasite antibodies have been produced!";
+            DOM.paraImg.style.display = "grid"
+            display.updateDisplay();
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnRed(DOM.actionDisplay);
         }
     },
 
@@ -1398,20 +1503,57 @@ const immuSystem = {
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            console.log("out of actions");
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameStatus.memCellCreated === false){
             console.log("You can't produce any memory cells yet.")
+            DOM.displayMessage.textContent = "You can't produce any memory cells yet."
 
         } else if(cell === 1 && gameController.checkResources(cost,gameVariables)){
             if(gameStatus.fluCreated === false){
                 DOM.displayMessage.textContent = "You can't produce flu memory cells yet."
-            } else{
+            } else if(gameStatus.fluMem === true){
+                DOM.displayMessage.textContent = "Flu memory cells already produced!"
+            } else {
                 DOM.displayMessage.textContent = "Flu memory cells produced!";
                 gameStatus.fluMem = true;
                 gameVariables.amino -= cost.amino
+                gameVariables.actions -=1
+                DOM.fluMemImg.style.display = "grid";
+                display.updateDisplay();
+                display.turnRed(DOM.avAmiDisplay)
+                display.turnRed(DOM.actionDisplay)
             }
         } else if(cell === 2 && gameController.checkResources(cost, gameVariables)){
-
+            if(gameStatus.bacteriaCreated === false){
+                DOM.displayMessage.textContent = "You can't produce bacteria memory cells yet."
+            } else if(gameStatus.bacMem === true){
+                DOM.displayMessage.textContent = "Bacteria memory cells already produced!"
+            } else {
+                DOM.displayMessage.textContent = "Bacteria memory cells produced!";
+                gameStatus.bacMem = true;
+                gameVariables.amino -= cost.amino
+                gameVariables.actions -= 1
+                DOM.bacMemImg.style.display = "grid";
+                display.updateDisplay();
+                display.turnRed(DOM.avAmiDisplay)
+                display.turnRed(DOM.actionDisplay)
+            }
+        } else if(cell === 3 && gameController.checkResources(cost, gameVariables)){
+            if(gameStatus.parasiteCreated === false){
+                DOM.displayMessage.textContent = "You can't produce parasite memory cells yet."
+            } else if(gameStatus.parasiteMem === true){
+                DOM.displayMessage.textContent = "Parasite memory cells already produced!"
+            } else {
+                DOM.displayMessage.textContent = "Parasite memory cells produced!";
+                gameStatus.parasiteMem = true;
+                gameVariables.amino -= cost.amino
+                gameVariables.actions -= 1
+                DOM.paraMemImg.style.display = "grid";
+                display.updateDisplay();
+                display.turnRed(DOM.avAmiDisplay)
+                display.turnRed(DOM.actionDisplay)
+            }
         }
     }
 }
