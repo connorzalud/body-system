@@ -84,6 +84,10 @@ const DOM = {
     adrenTool: document.querySelector("#adren-tooltip"),
     adrenImg: document.querySelector("#picture-8"),
     adrenImgTool: document.querySelector("#adrenaline-img-tooltip"),
+    melaBtn: document.querySelector("#mela-btn"),
+    melaTool: document.querySelector("#mela-tooltip"),
+    melaImg: document.querySelector("#picture7"),
+    melaImgTool: document.querySelector("#melatonin-img-tooltip"),
 
     
 
@@ -254,6 +258,10 @@ DOM.adrenBtn.addEventListener("click", function(){
 })
 DOM.adrenTool.innerHTML = `Produces adrenaline. Adds <b>Adrenaline</b> status. <b>Cost:</b> -1 glucose, -3 amino acids.`
 
+DOM.melaBtn.addEventListener("click", function(){
+    endoSystem.produceMel()
+})
+
 
 DOM.memCellBtn.addEventListener("click", function(){
     DOM.immuneBtnContain.style.display = "none";
@@ -307,7 +315,17 @@ const display = {
         DOM.healthDisplayTool.innerHTML = `<b>Health loss per turn:</b> ${gameController.healthRate}`
         DOM.co2Display.innerHTML= `<b>Carbon Dioxide:</b> ${gameVariables.co2}`;
 
-        
+        DOM.regulateImgTool.innerHTML= `<b>Regulate Systems:</b> Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`;
+        DOM.breathImgTool.innerHTML = `<b>Increased Breathing:</b> While active, increase <b>potential</b> oxygen by additional 4 when using <b>Get Oxygen</b>. Turns Remaining: ${gameStatus.increaseBreathCount}`;
+        DOM.sweatImgTool.innerHTML = `<b>Sweating:</b> Can help lower body temperature when overheated. Turns Remaining: ${gameStatus.sweatOnCount}`
+        DOM.exerciseImgTool.innerHTML = `<b>Exercise Respiratory System:</b> Exercise has made the repiratory system more efficient!`
+        DOM.increaseHeartImgTool.innerHTML= `<b>Increased Heart Rate:</b> While active, carbon dioxide gain is reduced to 2 when using <b>Transport Nutrients</b>. Turns Remaining: ${gameStatus.increaseHeartCount}`
+        DOM.exerciseHeartImgTool.innerHTML = `<b>Exercise Circulatory System:</b> Exercise has made the circulatory system more efficient!`
+        DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4 at the end of the turn. Turns Remaining: ${gameStatus.insCount}`;
+        DOM.adrenImgTool.innerHTML = `<b>Adrenaline:</b> While active, increase <b>available</b> oxygen by 4 at the end of the turn. Turns Remaining: ${gameStatus.adrenCount}`
+
+
+        DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
 
     },
 
@@ -330,7 +348,14 @@ const display = {
 
         setTimeout(function(){
             img.classList.remove('flash-effect')
-        }, 3000)
+        }, 4000)
+    },
+
+    endRed(div){
+        div.style.color = "red"
+        setTimeout(function(){
+            div.style.color = "";
+        },2000)
     }
 
 }
@@ -456,6 +481,30 @@ const statusHandler = {
         
         
         
+    }
+}
+
+
+const endTurn = {
+
+    checkRegulate(){
+        if(!gameStatus.regulateOn){
+            gameVariables.health = Math.max(0,gameVariables.health -= gameController.healthRate);
+            display.updateDisplay()
+            DOM.displayMessage.textContent = `Regulate Systems is inactive. Health loss: ${gameController.healthRate}`
+            display.endRed(DOM.healthDisplay);
+    } else if(gameStatus.regulateOnCount === 1){
+        gameStatus.regulateOn = false;
+        DOM.displayMessage.textContent = `Regulate Systems is active. Health loss avoided. Final Turn.`
+        display.flashImg(DOM.regulateImg);
+        DOM.regulateImg.style.display = "none"
+    } else {
+        gameStatus.regulateOnCount -= 1
+        display.updateDisplay()
+        DOM.displayMessage.textContent = `Regulate Systems is active. Health loss avoided. Turns Remaining: ${gameStatus.regulateOnCount}`;
+        display.flashImg(DOM.regulateImg)
+        
+    }
     }
 }
 
@@ -1394,17 +1443,8 @@ const upgrades = {
 
 
 display.updateDisplay();
-DOM.regulateImgTool.innerHTML= `<b>Regulate Systems:</b> Prevents health loss when ending turn. Turns Remaining: ${gameStatus.regulateOnCount}`;
-DOM.breathImgTool.innerHTML = `<b>Increased Breathing:</b> While active, increase <b>potential</b> oxygen by additional 4 when using <b>Get Oxygen</b>. Turns Remaining: ${gameStatus.increaseBreathCount}`;
-DOM.sweatImgTool.innerHTML = `<b>Sweating:</b> Can help lower body temperature when overheated. Turns Remaining: ${gameStatus.sweatOnCount}`
-DOM.exerciseImgTool.innerHTML = `<b>Exercise Respiratory System:</b> Exercise has made the repiratory system more efficient!`
-DOM.increaseHeartImgTool.innerHTML= `<b>Increased Heart Rate:</b> While active, carbon dioxide gain is reduced to 2 when using <b>Transport Nutrients</b>. Turns Remaining: ${gameStatus.increaseHeartCount}`
-DOM.exerciseHeartImgTool.innerHTML = `<b>Exercise Circulatory System:</b> Exercise has made the circulatory system more efficient!`
-DOM.insulinImgTool.innerHTML = `<b>Insulin:</b> While active, increase <b>available</b> glucose by 4 at the end of the turn. Turns Remaining: ${gameStatus.insCount}`;
-DOM.adrenImgTool.innerHTML = `<b>Adrenaline:</b> While active, increase <b>available</b> oxygen by 4 at the end of the turn. Turns Remaining: ${gameStatus.adrenCount}`
 
 
-DOM.WarnImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> every turn.`
 
 
 
