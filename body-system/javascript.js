@@ -224,7 +224,7 @@ DOM.immuneBtn.addEventListener("click", function(){
 })
 
 DOM.endBtn.addEventListener("click", function(){
-    gameController.endTurn()
+    gameController.endTurn2()
 })
 
 //nervous system buttons
@@ -384,6 +384,19 @@ DOM.injuryImg.addEventListener("click", function(){
 DOM.resolveBtn.onclick = function (){
     gameStatus.clearStatus2(gameStatus.currentStatus);
 }
+
+
+//upgrades
+
+DOM.upgradeActionsBtn.addEventListener("click", function(){
+    upgrades.upgradeActions()
+})
+DOM.upgradeActionsTool.innerHTML = `Requires strong neural networks to upgrade!`
+
+DOM.upgradeHealthBtn.addEventListener("click", function(){
+    upgrades.upgradeHealth()
+})
+DOM.upgradeHealthTool.innerHTML = `Requires exercise to upgrade!`
 
 const display = {
 
