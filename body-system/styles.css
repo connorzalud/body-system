@@ -255,6 +255,15 @@
 #picture-21{
     display:none
 }
+#picture-22{
+    display:none
+}
+#picture-23{
+    display:none
+}
+#picture-24{
+    display:none
+}
 
 .body-system-btns-container{
     grid-column: 1/2;
@@ -452,7 +461,9 @@
 }
 
 .upgrade-buttons{
-    display:none
+    display:grid;
+    gap: 8px;
+    padding: 5px;
 }
 
 
