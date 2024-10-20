@@ -425,14 +425,14 @@ const display = {
         div.style.color = "red"
         setTimeout(function(){
             div.style.color = "";
-        },1200)
+        },4000)
     },
 
     turnGreen(div){
         div.style.color = "green"
         setTimeout(function(){
             div.style.color = "";
-        },1200)
+        },4000)
     },
 
     flashImg(img){
@@ -634,7 +634,10 @@ const endTurn = {
         gameStatus.regulateOn = false;
         DOM.displayMessage.textContent = `Regulate Systems is active. Health loss avoided. Final Turn.`
         display.flashImg(DOM.regulateImg);
-        DOM.regulateImg.style.display = "none"
+        setTimeout(()=>{
+            DOM.regulateImg.style.display = "none"
+        },4000)
+        
     } else {
         gameStatus.regulateOnCount -= 1
         display.updateDisplay()
@@ -654,7 +657,10 @@ const endTurn = {
                 display.updateDisplay();
                 display.turnGreen(DOM.avOxDisplay);
                 display.flashImg(DOM.adrenImg)
-                DOM.adrenImg.style.display = "none"
+                setTimeout(()=>{
+                   DOM.adrenImg.style.display = "none" 
+                },4000)
+                
             } else{
                 gameStatus.adrenCount -= 1;
                 gameVariables.oxygen += 4;
@@ -665,30 +671,51 @@ const endTurn = {
             }
 
         }
-
+        
         if(gameStatus.insuOn === true){
-            if(gameStatus.insCount === 0){
+            setTimeout(()=>{
+                if(gameStatus.insCount === 1){
                 gameStatus.insCount = 2;
                 gameStatus.insuOn = false
-                DOM.insulinImg.style.display = "none"
+                gameVariables.avGluDisplay+=4;
+                DOM.displayMessage.textContent = "Insulin increased the amount of glucose!"
+                display.updateDisplay();
+                display.turnGreen(DOM.avGluDisplay);
+                display.flashImg(DOM.insulinImg);
+                setTimeout(()=>{
+                    DOM.insulinImg.style.display = "none"
+                },4000)
+                
             } else{
                 gameStatus.insCount -= 1;
                 gameVariables.glucose += 4
+                display.updateDisplay()
+                DOM.displayMessage.textContent = "Insulin increased the amount of glucose!"
+                display.turnGreen(DOM.avGluDisplay);
+                DOM.flashImg(DOM.insulinImg)
             }
+            },4000)
+            
         }
     },
 
     checkPathogen(){
         if(gameStatus.fluOn === true){
             if(gameStatus.fluMem === true){
+                
+                display.flashImg(DOM.fluPathImg)
+                display.flashImg(DOM.fluMemImg)
                 gameStatus.fluOn = false;
                 gameStatus.fluAnti = false;
                 gameStatus.eventActive = false;
                 gameStatus.fluAntiCount = 3;
                 DOM.displayMessage.textContent = "The flu was defeated quickly by using memory cells!";
-                display.flashImg(DOM.fluPathImg)
-                DOM.fluPathImg.style.display = "none";
-                DOM.fluImg.style.display = "none"
+                setTimeout(()=>{
+                    DOM.fluPathImg.style.display = "none";
+                    DOM.fluImg.style.display = "none";
+                    DOM.fluMemImg.style.display= "none";
+                },4000)
+                
 
             } else if(gameStatus.fluAnti === true){
                 if(gameStatus.fluAntiCount === 1){
@@ -700,8 +727,12 @@ const endTurn = {
                     gameStatus.fluAntiCount = 3;
                     DOM.displayMessage.textContent = "Enough flu antibodies have been produced to defeat it!"
                     display.flashImg(DOM.fluPathImg);
-                    DOM.fluPathImg.style.display = "none"
-                    DOM.fluImg.style.display = "none"
+                    display.flashImg(DOM.fluImg);
+                    setTimeout(()=>{
+                        DOM.fluPathImg.style.display = "none"
+                        DOM.fluImg.style.display = "none"
+                    },4000)
+                    
                 } else{
                     DOM.displayMessage.textContent = "The body is still producing flu antibodies."
                     gameVariables.health = Math.max(0,gameVariables.health -= 1)
@@ -724,11 +755,22 @@ const endTurn = {
         }
 
         if(gameStatus.bacteriaOn === true){
-            if(gameStatus.bacMem === true){
+            setTimeout(()=>{
+                if(gameStatus.bacMem === true){
                 gameStatus.bacteriaOn = false;
                 gameStatus.bacteriaAnti = false;
                 gameStatus.eventActive = false;
-                console.log("you defeated the bacteria with memory cells!")
+                gameStatus.bacteriaAntiCount = 3;
+                DOM.displayMessage.textContent = "The bacteria was defeated quickly using memory cells!";
+                display.flashImg(DOM.bacPathImg);
+                display.flashImg(DOM.bacMemImg);
+                setTimeout(()=>{
+                    DOM.bacPathImg.style.display = "none";
+                    DOM.bacImg.style.display = "none";
+                    DOM.bacMemImg.style.display = "none"
+                },4000)
+                
+                
 
             } else if(gameStatus.bacteriaAnti === true){
                 if(gameStatus.bacteriaAntiCount === 1){
@@ -737,21 +779,47 @@ const endTurn = {
                     gameStatus.bacteriaAnti = false;
                     gameStatus.bacteriaOn = false;
                     gameStatus.eventActive = false;
-                    console.log("you defeated the bacteria!")
+                    gameStatus.bacteriaAntiCount = 3;
+                    DOM.displayMessage.textContent = "Enough bacteria antibodies were produced to defeat it!";
+                    display.flashImg(DOM.bacPathImg);
+                    display.flashImg(DOM.bacImg);
+                    setTimeout(()=>{
+                        DOM.bacPathImg.style.display = "none";
+                        DOM.bacImg.style.display = "none"
+                    },4000)
+
+
                 } else{
                     gameStatus.bacteriaAntiCount -= 1;
                     gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                    display.updateDisplay()
+                    display.turnRed(DOM.healthDisplay)
+                    DOM.displayMessage.textContent = "Bacteria antibodies are still being produced."
                 }
             } else{
                 gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                display.updateDisplay();
+                display.turnRed(DOM.healthDisplay);
+                DOM.displayMessage.textContent = "The bacteria harms the body."
             }
+            },4000)
+            
         }
         if(gameStatus.parasiteOn === true){
-            if(gameStatus.parasiteMem === true){
+            setTimeout(()=>{
+                if(gameStatus.parasiteMem === true){
                 gameStatus.parasiteOn = false;
                 gameStatus.parasiteAnti = false;
                 gameStatus.eventActive = false;
-                console.log("you defeated the parasite with memory cells!")
+                gameStatus.parasiteAntiCount = 3;
+                display.flashImg(DOM.paraPathImg);
+                display.flashImg(DOM.paraMemImg);
+                DOM.displayMessage.textContent = "The parasite was defeated quickly with memory cells.";
+                setTimeout(()=>{
+                    DOM.paraImg.style.display = "none";
+                    DOM.paraPathImg.style.display = "none";
+                    DOM.paraMemImg.style.display = "none"
+                })
 
             } else if(gameStatus.bacteriaAnti === true){
                 if(gameStatus.parasiteAntiCount === 1){
@@ -760,14 +828,29 @@ const endTurn = {
                     gameStatus.parasiteAnti = false;
                     gameStatus.parasiteOn = false;
                     gameStatus.eventActive = false;
-                    console.log("you defeated the parasite!")
+                    gameStatus.parasiteAntiCount = 3;
+                    DOM.displayMessage.textContent = "Enough parasite antibodies were produced to defeat it!";
+                    display.flashImg(DOM.paraPathImg);
+                    display.flashImg(DOM.paraImg);
+                    setTimeout(()=>{
+                        DOM.paraPathImg.style.display = "none";
+                        DOM.paraImg.style.display = "none";
+                    },4000)
                 } else{
                     gameStatus.parasiteAntiCount -= 1;
                     gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                    display.updateDisplay();
+                    display.turnRed(DOM.healthDisplay)
+                    DOM.displayMessage.textContent = "Parasite antibodies are still being produced."
                 }
             } else{
                 gameVariables.health = Math.max(0,gameVariables.health -= 1)
+                display.updateDisplay();
+                display.turnRed(DOM.healthDisplay);
+                DOM.displayMessage.textContent = "The parasite harms the body."
             }
+            },8000)
+            
         }
     },
 
@@ -776,14 +859,20 @@ const endTurn = {
         
         if(gameStatus.increaseHeart === true){
             
-                if(gameStatus.increaseHeartCount === 0){
+                if(gameStatus.increaseHeartCount === 1){
                 gameStatus.increaseHeart = false;
-                DOM.displayMessage.textContent = "test message 1"
+                gameStatus.increaseHeartCount = 2;
+                DOM.displayMessage.textContent = "Heart rate has slowed down."
                 display.flashImg(DOM.exerciseHeartImg);
-                DOM.exerciseHeartImg.style.display = "none"
+                setTimeout(()=>{
+                    DOM.exerciseHeartImg.style.display = "none"
+                },4000)
+                
             } else{
-                gameStatus.increaseHeartCount -=1
-                DOM.displayMessage.textContent = "test test test"
+                gameStatus.increaseHeartCount -=1;
+                DOM.displayMessage.textContent = "Heart rate is still increased."
+                display.updateDisplay();
+                display.flashImg(DOM.exerciseHeartImg)
             }
             
             
@@ -791,44 +880,82 @@ const endTurn = {
 
         if(gameStatus.increaseBreath === true){
             setTimeout(()=>{
-                if(gameStatus.increaseBreathCount === 0){
+                if(gameStatus.increaseBreathCount === 1){
                 gameStatus.increaseBreath = false;
-                DOM.displayMessage.textContent = "test message 2"
-                DOM.breathImg.style.display = "none"
+                gameStatus.increaseBreathCount = 2;
+                DOM.displayMessage.textContent = "Breathing rate has slowed down."
+                setTimeout(()=>{
+                    DOM.breathImg.style.display = "none"
+                },4000)
+                
             } else{
-                gameStatus.increaseBreathCount -=1
-                DOM.displayMessage.textContent = "testing..."
+                gameStatus.increaseBreathCount -=1;
+                DOM.displayMessage.textContent = "Breathing rate is still increased."
+                display.updateDisplay();
+                display.flashImg(DOM.breathImg)
             }
-            }, 1500)
+            }, 4000)
             
         }
 
         if(gameStatus.sweatOn === true){
-            if(gameStatus.sweatOnCount === 1){
+            setTimeout(()=>{
+                if(gameStatus.sweatOnCount === 1){
                 gameStatus.sweatOn=false;
                 gameStatus.sweatOnCount = 3;
-                DOM.displayMessage.textContent = "test message 3"
-                DOM.sweatImg.style.display = "none"
+                DOM.displayMessage.textContent = "The body is no longer sweating."
+                setTimeout(()=>{
+                    DOM.sweatImg.style.display = "none"
+                },4000)
+                
             } else {
                 gameStatus.sweatOnCount -= 1
+                DOM.displayMessage.textContent = "The body is still sweating.";
+                display.updateDisplay();
+                display.flashImg(DOM.sweatImg)
             }
+            },8000)
+            
         }
         
         if(gameStatus.lowEnergy === true){
+            setTimeout(()=>{
                 gameVariables.water = Math.max(0,gameVariables.water -= 2);
                 gameVariables.glucose = Math.max(0,gameVariables.glucose -= 2);
                 gameVariables.oxygen = Math.max(0,gameVariables.water -= 2);
                 gameVariables.amino = Math.max(0,gameVariables.amino -= 2);
+                DOM.displayMessage.textContent = "Low energy causes the body to lose more resources.";
+                display.updateDisplay();
+                display.flashImg(DOM.lowEnergyImg);
+                display.turnRed(DOM.avWatDisplay);
+                display.turnRed(DOM.avGluDisplay);
+                display.turnRed(DOM.avOxDisplay);
+                display.turnRed(DOM.avAmiDisplay);
+            },12000)
+                
 
         }
 
         if(gameStatus.overheatOn === true){
-            gameVariables.water = Math.max(0,gameVariables.water -= 2);
-            gameVariables.actions -=1
+            setTimeout(()=>{
+                gameVariables.actions -=1;
+                DOM.displayMessage.textContent = "Overheat causes you to lose one action.";
+                display.updateDisplay();
+                display.flashImg(DOM.overheatImg);
+                display.turnRed(DOM.actionDisplay);
+            },16000)
+            
         }
 
         if(gameStatus.injuryOn === true){
-            gameVariables.health = (Math.max(0,gameVariables.health -= 1))
+            setTimeout(()=>{
+                gameVariables.health = (Math.max(0,gameVariables.health -= 1));
+                DOM.displayMessage.textContent = "The injury causes you to lose one health point.";
+                display.updateDisplay();
+                display.flashImg(DOM.injuryImg);
+                display.turnRed(DOM.healthDisplay)
+            },20000)
+            
         }
     },
 
@@ -1121,6 +1248,12 @@ const gameController = {
     }
 
     return true;  // Return true if all resources are sufficient
+      },
+
+      endTurn2(){
+        endTurn.checkRegulate();
+        endTurn.checkHormone();
+        endTurn.checkPathogen()
       }
 }
 
