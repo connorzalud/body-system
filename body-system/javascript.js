@@ -1479,56 +1479,71 @@ events: [
         
         },
     { 
-        range: [6,10], 
+        range: [6,7], 
         situation: ()=>{
-            "event 2- sleep trouble"
+            DOM.eventDisplay.textContent = "No event triggered."
             
             
         }
     },
-    { range: [11,13], 
+    { range: [8,10], 
         situation: ()=> {
-            "event 3"
-            gameStatus.fluOn = true;
+            if(gameStatus.fluOn === false){
+                gameStatus.fluOn = true;
             gameStatus.eventActive = true;
             console.log("A flu virus has invaded the body!");
             DOM.displayMessage.textContent = "A flu virus has infected the body!";
             DOM.fluPathImg.style.display = "grid"
+            } else{
+                DOM.eventDisplay.textContent = "No event triggered."
+            }
+            
         }
             
     
     },
+    { range: [11,13], 
+        situation: ()=> {
+            if(gameStatus.bacteriaOn === false){
+                gameStatus.bacteriaOn = true;
+                gameStatus.eventActive = true;
+                DOM.displayMessage.textContent = "A bacteria has infected the body!";
+                DOM.bacPathImg.style.display = "grid"
+            } else {
+                DOM.eventDisplay.textContent = "No event triggered."
+            }
+            
+        }
+
+
+    },
+
     { range: [14,16], 
         situation: ()=> {
-            "event 4"
-            gameStatus.bacteriaOn = true;
-            gameStatus.eventActive = true;
-            console.log("A bacteria has invaded the body!");
-            DOM.displayMessage.textContent = "A bacteria has infected the body!";
-            DOM.bacPathImg.style.display = "grid"
+            if(gameStatus.parasiteOn === false){
+                gameStatus.parasiteOn = true;
+                gameStatus.eventActive = true;
+                DOM.displayMessage.textContent = "A parasite has infected the body!";
+                DOM.paraPathImg.style.display = "grid"
+            } else {
+                DOM.eventDisplay.textContent = "No event triggered."
+            }
+            
         }
 
 
     },
-
-    { range: [17,19], 
+    { range: [17,20], 
         situation: ()=> {
-            "event 5"
-            gameStatus.parasiteOn = true;
-            gameStatus.eventActive = true;
-            console.log("A parasite has invaded the body!");
-            DOM.displayMessage.textContent = "A parasite has infected the body!";
-            DOM.paraPathImg.style.display = "grid"
-        }
-
-
-    },
-    { range: [18,20], 
-        situation: ()=> {
-            "event 6"
-            gameStatus.injuryOn = true;
-            gameStatus.eventActive = true;
-            console.log("The body was injured!")
+            if(gameStatus.injuryOn === false){
+                gameStatus.injuryOn = true;
+                gameStatus.eventActive = true;
+                DOM.displayMessage.textContent = "The body was injured!";
+                DOM.injuryImg.style.display = "grid"
+            } else {
+                DOM.eventDisplay.textContent = "No event triggered."
+            }
+            
         }
 
 
