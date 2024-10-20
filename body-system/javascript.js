@@ -139,8 +139,20 @@ const DOM = {
 
     eventDisplay: document.querySelector("#event-text"),
     resolveBtn: document.querySelector("#resolve-button"),
-    resolveTool: document.querySelector("#resolve-tooltip")
+    resolveTool: document.querySelector("#resolve-tooltip"),
 
+    upgradeHealthBtn: document.querySelector("#upgrade-health"),
+    upgradeHealthTool: document.querySelector("#upgrade-health-tooltip"),
+    upgradeActionsBtn: document.querySelector("#upgrade-actions"),
+    upgradeActionsTool: document.querySelector("#upgrade-actions-tooltip"),
+    neuralBtn: document.querySelector("#neural-btn"),
+    neuralBtnTool: document.querySelector("#neural-btn-tooltip"),
+    neuralImg: document.querySelector("#picture-22"),
+    neuralImgTool: document.querySelector("#neural-tooltip"),
+    completeNeuralImg: document.querySelector("#picture-23"),
+    completeNeuralImgTool: document.querySelector("#complete-neural-tooltip"),
+    upgradeNeuralImg: document.querySelector("#picture-24"),
+    upgradeNeuralImgTool: document.querySelector("#upgrade-neural-tooltip"),
 
 
 
@@ -230,6 +242,11 @@ DOM.sweatBtn.addEventListener("click", function(){
     nervSystem.produceSweat()
 })
 DOM.sweatBtnTool.innerHTML = "Causes body to sweat. Adds '<b>Sweating</b>' status. <b>Cost:</b> -3 water."
+
+DOM.neuralBtn.addEventListener("click", function(){
+    nervSystem.neuralNetwork()
+})
+DOM.neuralBtnTool.innerHTML = `Begins to grow neural networks. Adds <b>Strenghthen Neural Networks</b> status. <b>Cost:</b> -4 glucose, -8 oxygen, -4 amino acids.`
 
 //respiratory system buttons
 DOM.getOxBtn.addEventListener("click", function(){
@@ -407,6 +424,9 @@ const display = {
         DOM.fluMemImgTool.innerHTML = `<b>Flu Memory Cells:</b> While active, defeats the flu. Remains active until used.`
         DOM.bacMemImgTool.innerHTML = `<b>Bacteria Memory Cells:</b> While active, defeats bacteria. Remains active until used.`
         DOM.paraMemImgTool.innerHTML =  `<b>Parasite Memory Cells:</b> While active, defeats parasite. Remains active until used.`
+        DOM.neuralImgTool.innerHTML = `<b>Strenghthen Neural Networks:</b> While active neurons are growing. Turns Remaining: ${gameStatus.neuralNetworkCount}`
+        DOM.completeNeuralImgTool.innerHTML = `<b>Strenghthened Neural Networks:</b> Neural networks have become stronger! Upgrade is now available.`
+        DOM.upgradeNeuralImgTool.innerHTML = `<b>Upgraded Neural Networks:</b> While active, gain one additional action at the end of every turn.`
 
 
         DOM.overheatImgTool.innerHTML = `<b>Overheat:</b> The body overheated after exercise! While active, lose 1 <b>action</b> at the end of each turn.`
@@ -459,25 +479,25 @@ const display = {
 
     eventActive: false,
     currentStatus: null,
-    regulateOn: true,
+    regulateOn: false,
     regulateOnCount: 3,
-    overheatOn: true,
+    overheatOn: false,
     lowEnergy: false,
-    increaseBreath: true,
+    increaseBreath: false,
     increaseBreathCount: 2,
     increaseHeart: false,
     increaseHeartCount: 2,
     exerciseLungs: false,
     exerciseHeart: false,
-    sweatOn: true,
+    sweatOn: false,
     sweatOnCount:3,
     co2Over: false,
     melatoninOn: false,
-    adrenOn: true,
+    adrenOn: false,
     adrenCount: 2,
-    insuOn: true,
+    insuOn: false,
     insCount: 2,
-    fluOn: true,
+    fluOn: false,
     fluAnti: false,
     fluAntiCount: 3,
     fluCreated: false,
@@ -487,13 +507,17 @@ const display = {
     bacteriaAntiCount: 3,
     bacteriaCreated: false,
     bacMem: false,
-    parasiteOn: true,
+    parasiteOn: false,
     parasiteAnti: false,
     parasiteAntiCount: false,
     parasiteCreated: false,
     parasiteMem: false,
     memCellCreated: false,
     injuryOn: false,
+    neuralNetwork: false,
+    neuralNetworkCount:2,
+    neuralNetworkComplete: false,
+    actionsUpgraded: false,
 
 
 
@@ -629,6 +653,19 @@ const endTurn = {
     },
 
     async checkRegulate(){
+
+        if(gameStatus.actionsUpgraded === true){
+            gameVariables.actions = 4;
+            DOM.displayMessage.textContent = "Actions restored!"
+            display.turnGreen(DOM.actionDisplay);
+            await this.delay(4000)
+        } else{
+            gameVariables.actions = 3;
+            DOM.displayMessage.textContent = "Actions restored!"
+            display.turnGreen(DOM.actionDisplay);
+            await this.delay(4000)
+        }
+
         if(!gameStatus.regulateOn){
             gameVariables.health = Math.max(0,gameVariables.health -= gameController.healthRate);
             display.updateDisplay()
@@ -938,6 +975,24 @@ const endTurn = {
            
             
         }
+
+        if(gameStatus.neuralNetwork === true){
+            if(gameStatus.neuralNetworkCount === 1){
+                gameStatus.neuralNetwork = false;
+                gameStatus.neuralNetworkComplete = true;
+                DOM.displayMessage.textContent = "The neural networks have finished growing!"
+                display.flashImg(DOM.neuralImg);
+                await this.delay(4000);
+                DOM.neuralImg.style.display = "none";
+                DOM.completeNeuralImg.style.display = "grid"
+            } else{
+                gameStatus.neuralNetworkCount -= 1;
+                DOM.displayMessage.textContent = "Neural networks are still growing";
+                display.updateDisplay();
+                display.flashImg(DOM.neuralImg);
+                await this.delay(4000)
+            }
+        }
         
         if(gameStatus.lowEnergy === true){
             
@@ -1071,6 +1126,7 @@ const endTurn = {
                 DOM.endoBtn.disabled = false;
                 DOM.immuneBtn.disabled = false;
                 DOM.resolveBtn.disabled = false;
+                DOM.displayMessage.textContent = "Turn Complete"
             }
     }
 }
@@ -1358,27 +1414,32 @@ const gameController = {
       },
 
       async endTurn2(){
-        DOM.nerveBtn.disabled = true;
-        DOM.respBtn.disabled = true;
-        DOM.circBtn.disabled = true;
-        DOM.digestBtn.disabled = true;
-        DOM.endoBtn.disabled = true;
-        DOM.immuneBtn.disabled = true;
-        DOM.resolveBtn.disabled = true;
-        DOM.nerveBtnContain.style.display = "none";
-        DOM.respBtnContain.style.display = "none";
-        DOM.circBtnContain.style.display = "none";
-        DOM.digestBtnContain.style.display = "none";
-        DOM.endoBtnContain.style.display = "none";
-        DOM.immuneBtnContain.style.display = "none";
-        DOM.memCellBtnContain.style.display = "none";
+        if(gameVariables.actions !== 0){
+            DOM.displayMessage.textContent = `Actions Remaining: ${gameVariables.actions}`
+        } else{
+            DOM.nerveBtn.disabled = true;
+            DOM.respBtn.disabled = true;
+            DOM.circBtn.disabled = true;
+            DOM.digestBtn.disabled = true;
+            DOM.endoBtn.disabled = true;
+            DOM.immuneBtn.disabled = true;
+            DOM.resolveBtn.disabled = true;
+            DOM.nerveBtnContain.style.display = "none";
+            DOM.respBtnContain.style.display = "none";
+            DOM.circBtnContain.style.display = "none";
+            DOM.digestBtnContain.style.display = "none";
+            DOM.endoBtnContain.style.display = "none";
+            DOM.immuneBtnContain.style.display = "none";
+            DOM.memCellBtnContain.style.display = "none";
 
-        await endTurn.checkRegulate();
-        await endTurn.checkHormone();
-        await endTurn.checkPathogen();
-        await endTurn.checkStatus();
-        await endTurn.deductResources();
-        await endTurn.checkGame();
+            await endTurn.checkRegulate();
+            await endTurn.checkHormone();
+            await endTurn.checkPathogen();
+            await endTurn.checkStatus();
+            await endTurn.deductResources();
+            await endTurn.checkGame();
+        
+        }
         
       }
 }
@@ -1463,10 +1524,10 @@ events: [
 }
 
 const gameVariables = {
-    oxygen: 0,
-    water: 0,
+    oxygen: 20,
+    water: 20,
     carbs: 1,
-    glucose: 0,
+    glucose: 20,
     protein: 1,
     amino: 20,
     co2: 0,
@@ -1969,6 +2030,31 @@ const nervSystem = {
             gameVariables.health = Math.min(gameVariables.health+1,gameVariables.maxHealth);
             gameVariables.actions-=1
         }
+    },
+
+    neuralNetwork(){
+
+        const cost = {
+            glucose: 4,
+            oxygen: 8,
+            amino: 4
+        }
+
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameController.checkResources(cost,gameVariables)){
+            gameStatus.neuralNetwork = true;
+            gameVariables.glucose -= cost.glucose;
+            gameVariables.oxygen -= cost.oxygen;
+            gameVariables.amino -= cost.amino;
+            DOM.displayMessage.textContent = "Neural networks in the brain have started to get stronger!"
+            DOM.neuralImg.style.display = "grid";
+            display.updateDisplay();
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.avOxDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+        }
     }
 }
 
@@ -2106,22 +2192,49 @@ const immuSystem = {
 
 
 const upgrades = {
-    get respGluCost() {
-        return {
-            glucose: 3 + gameController.upgradeRate
-        }
-    },
+    
     upgradeHealth(){
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameStatus.exerciseHeart === true && gameStatus.exerciseLungs === true){
             gameVariables.maxHealth += 5;
             gameController.upgradeRate += 2;
             let statusMessage = 3 + gameController.upgradeRate;
-            DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> ${statusMessage} glucose`
+            DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> ${statusMessage} glucose`;
+            DOM.exerciseHeartTool.innerHTML =  `Adds <b>Exercise Circulatory System</b> status. Chance of causing <b>Overheat</b>. <b>Cost:</b> ${statusMessage} glucose`;
+            display.updateDisplay();
+            display.turnGreen(DOM.healthDisplay);
+            display.flashImg(DOM.exerciseHeartImg);
+            display.flashImg(DOM.exerciseImg);
+            setTimeout(()=>{
+                DOM.exerciseHeartImg.style.display = "none";
+                DOM.exerciseImg.style.display = "none"
+            },4000)
         } else {
-            console.log("have not met conditions")
+            DOM.displayMessage.textContent = "Have not met conditions for upgrade."
+        }
+    },
+
+    upgradeActions(){
+        gameController.checkActions();
+        if(gameVariables.actions === 0){
+            DOM.displayMessage.textContent = DOM.actionMessage
+        } else if(gameStatus.actionsUpgraded === true){
+            DOM.displayMessage.textContent = "Neural networks have already been strengthened!"
+        } else if(gameStatus.neuralNetwork === true){
+            DOM.display.textContent = "Neural networks are still getting stronger."
+        } else if(gameStatus.neuralNetworkComplete === true){
+            gameStatus.actionsUpgraded = true;
+            DOM.displayMessage.textContent = "Neural networks are stronger! Gain one additional action at the end of every turn.";
+            display.flashImg(DOM.completeNeuralImg);
+            setTimeout(()=>{
+                DOM.completeNeuralImg.style.display = "none"
+                DOM.upgradeNeuralImg.style.display = "grid"
+            },4000)
+            
+        } else{
+            DOM.displayMessage.textContent = "Have not met conditions for upgrade."
         }
     }
 }
