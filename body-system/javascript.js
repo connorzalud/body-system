@@ -267,7 +267,7 @@ DOM.exerciseTool.innerHTML = `Adds <b>Exercise Respiratory System</b> status. Ch
 DOM.releaseCO2Btn.addEventListener("click", function(){
     respSystem.releaseCO2()
 })
-DOM.releaseCO2Tool.innerHTML = `Releases all carbon dioxide in the body. <b>Cost:</b> -2 glucose, -2 amino acids and -2 water`
+DOM.releaseCO2Tool.innerHTML = `Releases all carbon dioxide in the body. <b>Cost:</b> -1 glucose, -1 amino acids and -1 water`
 
 //circulatory system buttons
 
@@ -291,7 +291,7 @@ DOM.exerciseHeartTool.innerHTML = `Adds <b>Exercise Circulatory System</b> statu
 DOM.getNutrientsBtn.addEventListener("click", function(){
     digestSystem.getNutrients()
 })
-DOM.getNutrientsTool.innerHTML = `Bring nutrients into the body. Increase <b>potential</b> water by 3, carbs by 2 and protein by 2. <b>Cost:</b> -1 glucose, -1, amino acids, +2 carbon dioxide.`
+DOM.getNutrientsTool.innerHTML = `Bring nutrients into the body. Increase <b>potential</b> water by 10, carbs by 6 and protein by 6. <b>Cost:</b> -1 glucose, -1, amino acids, +2 carbon dioxide.`
 
 DOM.breakBtn.addEventListener("click", function(){
     digestSystem.digestNutrients()
@@ -522,7 +522,7 @@ const display = {
     bacMem: false,
     parasiteOn: false,
     parasiteAnti: false,
-    parasiteAntiCount: false,
+    parasiteAntiCount: 3,
     parasiteCreated: false,
     parasiteMem: false,
     memCellCreated: false,
@@ -609,6 +609,7 @@ const statusHandler = {
             gameStatus.sweatOnCount = 3;
             gameVariables.actions -=1;
             DOM.sweatImg.style.display = "none";
+            DOM.overheatImg.style.display ="none";
             display.updateDisplay();
             display.turnRed(DOM.actionDisplay)
         } else{
@@ -631,6 +632,7 @@ const statusHandler = {
             DOM.increaseHeartImg.style.display = "none";
             gameStatus.increaseBreathCount = 2;
             DOM.breathImg.style.display = "none";
+            DOM.lowEnergyImg.style.display = "none";
             gameVariables.actions -= 1;
             display.updateDisplay();
             display.turnRed(DOM.actionDisplay)
@@ -669,11 +671,13 @@ const endTurn = {
 
         if(gameStatus.actionsUpgraded === true){
             gameVariables.actions = 4;
+            display.updateDisplay();
             DOM.displayMessage.textContent = "Actions restored!"
             display.turnGreen(DOM.actionDisplay);
             await this.delay(4000)
         } else{
             gameVariables.actions = 3;
+            display.updateDisplay();
             DOM.displayMessage.textContent = "Actions restored!"
             display.turnGreen(DOM.actionDisplay);
             await this.delay(4000)
@@ -687,6 +691,7 @@ const endTurn = {
             await this.delay(4000)
     } else if(gameStatus.regulateOnCount === 1){
         gameStatus.regulateOn = false;
+        gameStatus.regulateOnCount = 3;
         DOM.displayMessage.textContent = `Regulate Systems is active. Health loss avoided. Final Turn.`
         display.flashImg(DOM.regulateImg);
         await this.delay(4000)
@@ -794,11 +799,12 @@ const endTurn = {
                     
                     
                 } else{
-                    DOM.displayMessage.textContent = "The body is still producing flu antibodies."
+                    DOM.displayMessage.textContent = "The body is still producing flu antibodies. The flu harms the body."
                     gameVariables.health = Math.max(0,gameVariables.health -= 1)
                     gameStatus.fluAntiCount -= 1;
                     display.updateDisplay();
                     display.flashImg(DOM.fluPathImg);
+                    display.flashImg(DOM.fluImg);
                     display.turnRed(DOM.healthDisplay);
                     await this.delay(4000)
                     
@@ -856,7 +862,8 @@ const endTurn = {
                     display.updateDisplay()
                     display.turnRed(DOM.healthDisplay)
                     display.flashImg(DOM.bacPathImg);
-                    DOM.displayMessage.textContent = "Bacteria antibodies are still being produced."
+                    display.flashImg(DOM.bacImg);
+                    DOM.displayMessage.textContent = "Bacteria antibodies are still being produced. The bacteria harms the body."
                     await this.delay(4000)
                 }
             } else{
@@ -906,7 +913,8 @@ const endTurn = {
                     display.updateDisplay();
                     display.turnRed(DOM.healthDisplay)
                     display.flashImg(DOM.paraPathImg)
-                    DOM.displayMessage.textContent = "Parasite antibodies are still being produced."
+                    display.flashImg(DOM.paraImg)
+                    DOM.displayMessage.textContent = "Parasite antibodies are still being produced. The parasite harms the body."
                     await this.delay(4000)
                 }
             } else{
@@ -1053,12 +1061,12 @@ const endTurn = {
 
     async deductResources(){
         const turnThreshold = 10
-            const costAddition = Math.floor(gameController.turnCount/turnThreshold)
+            let costAddition = Math.floor(gameController.turnCount/turnThreshold)
             if(costAddition>=1){
                 gameController.aminoCost += costAddition;
                 gameController.glucoseCost += costAddition;
                 gameController.waterCost += costAddition;
-                gameController.oxygenCost =+ costAddition
+                gameController.oxygenCost += costAddition
             }
             const cost = {
                 resource: 2 + costAddition,
@@ -1492,7 +1500,7 @@ events: [
                 gameStatus.fluOn = true;
             gameStatus.eventActive = true;
             console.log("A flu virus has invaded the body!");
-            DOM.displayMessage.textContent = "A flu virus has infected the body!";
+            DOM.eventDisplay = "A flu virus has infected the body!";
             DOM.fluPathImg.style.display = "grid"
             } else{
                 DOM.eventDisplay.textContent = "No event triggered."
@@ -1507,7 +1515,7 @@ events: [
             if(gameStatus.bacteriaOn === false){
                 gameStatus.bacteriaOn = true;
                 gameStatus.eventActive = true;
-                DOM.displayMessage.textContent = "A bacteria has infected the body!";
+                DOM.eventDisplay.textContent = "A bacteria has infected the body!";
                 DOM.bacPathImg.style.display = "grid"
             } else {
                 DOM.eventDisplay.textContent = "No event triggered."
@@ -1523,7 +1531,7 @@ events: [
             if(gameStatus.parasiteOn === false){
                 gameStatus.parasiteOn = true;
                 gameStatus.eventActive = true;
-                DOM.displayMessage.textContent = "A parasite has infected the body!";
+                DOM.eventDisplay.textContent = "A parasite has infected the body!";
                 DOM.paraPathImg.style.display = "grid"
             } else {
                 DOM.eventDisplay.textContent = "No event triggered."
@@ -1538,7 +1546,7 @@ events: [
             if(gameStatus.injuryOn === false){
                 gameStatus.injuryOn = true;
                 gameStatus.eventActive = true;
-                DOM.displayMessage.textContent = "The body was injured!";
+                DOM.eventDisplay.textContent = "The body was injured!";
                 DOM.injuryImg.style.display = "grid"
             } else {
                 DOM.eventDisplay.textContent = "No event triggered."
@@ -1552,17 +1560,17 @@ events: [
 }
 
 const gameVariables = {
-    oxygen: 20,
-    water: 20,
+    oxygen: 10,
+    water: 10,
     carbs: 1,
-    glucose: 20,
+    glucose: 10,
     protein: 1,
-    amino: 20,
+    amino: 10,
     co2: 0,
-    poxygen: 5,
-    pwater: 5,
-    pglucose: 5,
-    pamino: 5,
+    poxygen: 3,
+    pwater: 3,
+    pglucose: 3,
+    pamino: 3,
     health: 10,
     maxHealth:10,
     actions: 3
@@ -1621,16 +1629,16 @@ const respSystem = {
     releaseCO2(){
 
         const cost = {
-            glucose: 2,
-            amino: 2,
-            water: 2
+            glucose: 1,
+            amino: 1,
+            water: 1
         }
         gameController.checkActions();
         if(gameVariables.actions === 0){
             console.log("out of actions");
             DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost,gameVariables)){
-            gameVariables.co2 = Math.max(0,gameVariables.co2 - 10);
+            gameVariables.co2 = 0;
             gameVariables.glucose -= cost.glucose;
             gameVariables.amino -=cost.amino;
             gameVariables.water -=cost.water;
@@ -1698,7 +1706,7 @@ const circSystem = {
         
         gameController.checkActions();
         if(gameVariables.actions === 0){
-            console.log("out of actions")
+            DOM.displayMessage.textContent = DOM.actionMessage
         }else if(gameStatus.increaseHeart === true){
             gameVariables.oxygen += gameVariables.poxygen;
             gameVariables.poxygen = 0;
@@ -1837,9 +1845,9 @@ const digestSystem = {
             DOM.displayMessage.textContent = DOM.actionMessage
         } else if(gameController.checkResources(cost,gameVariables)){
             gameVariables.actions -=1;
-            gameVariables.pwater +=3;
-            gameVariables.carbs += 2;
-            gameVariables.protein += 2;
+            gameVariables.pwater +=10;
+            gameVariables.carbs += 6;
+            gameVariables.protein += 6;
             gameVariables.co2 += 2;
             gameVariables.amino -=cost.amino;
             gameVariables.glucose -=cost.glucose;
@@ -1993,9 +2001,15 @@ const nervSystem = {
             gameVariables.amino -= 2;
             gameVariables.co2 += 2;
             gameVariables.actions--;
-            DOM.displayMessage.textContent = "Regulate on";
-            DOM.regulateImg.style.display = "block";
-            display.updateDisplay()
+            DOM.displayMessage.textContent = "The nervous system has regulated all other body systems!";
+            DOM.regulateImg.style.display = "grid";
+            display.updateDisplay();
+            display.turnRed(DOM.avOxDisplay);
+            display.turnRed(DOM.avGluDisplay);
+            display.turnRed(DOM.avWatDisplay);
+            display.turnRed(DOM.avAmiDisplay);
+            display.turnGreen(DOM.co2Display);
+            display.turnRed(DOM.actionDisplay);
 
         }
     },
